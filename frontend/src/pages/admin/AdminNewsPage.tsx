@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
@@ -21,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Plus, Pencil, Trash2, Eye } from 'lucide-react'
+import { Plus, Pencil, Trash2, Eye, Calendar } from 'lucide-react'
 import { mockNews } from '@/lib/mock/news'
 import type { News, NewsFormData } from '@/types'
 
@@ -208,67 +207,91 @@ export function AdminNewsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="glass-strong border-white/10 bg-primary-950/95 backdrop-blur-2xl max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-white">
+            <DialogTitle className="text-white text-lg">
               {editingNews ? 'Edit Berita' : 'Tambah Berita Baru'}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-5 py-4">
             <div className="space-y-2">
-              <Label className="text-white/70">Judul</Label>
+              <Label className="text-white/70 text-sm">Judul</Label>
               <Input
                 value={form.judul}
                 onChange={e => setForm(f => ({ ...f, judul: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white"
+                className="bg-white/5 border-white/10 text-white h-11 focus:border-primary-500/50 focus:ring-primary-500/20"
                 placeholder="Judul berita..."
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-white/70">Isi Teks</Label>
+              <Label className="text-white/70 text-sm">Isi Teks</Label>
               <Textarea
                 value={form.isi_teks}
                 onChange={e => setForm(f => ({ ...f, isi_teks: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white min-h-[120px]"
+                className="bg-white/5 border-white/10 text-white min-h-[120px] focus:border-primary-500/50 focus:ring-primary-500/20 resize-none"
                 placeholder="Isi berita..."
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-white/70">URL Gambar (opsional)</Label>
+              <Label className="text-white/70 text-sm">URL Gambar (opsional)</Label>
               <Input
                 value={form.gambar_url}
                 onChange={e => setForm(f => ({ ...f, gambar_url: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white"
+                className="bg-white/5 border-white/10 text-white h-11 focus:border-primary-500/50 focus:ring-primary-500/20"
                 placeholder="https://..."
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-white/70">Tanggal Mulai</Label>
-                <Input
-                  type="date"
-                  value={form.tanggal_mulai}
-                  onChange={e => setForm(f => ({ ...f, tanggal_mulai: e.target.value }))}
-                  className="bg-white/5 border-white/10 text-white"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-white/70">Tanggal Selesai</Label>
-                <Input
-                  type="date"
-                  value={form.tanggal_selesai}
-                  onChange={e => setForm(f => ({ ...f, tanggal_selesai: e.target.value }))}
-                  className="bg-white/5 border-white/10 text-white"
-                />
+
+            {/* Date range — styled with icon and label */}
+            <div className="space-y-3">
+              <Label className="text-white/70 text-sm flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Periode Tayang
+              </Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <span className="text-white/40 text-xs">Mulai</span>
+                  <Input
+                    type="date"
+                    value={form.tanggal_mulai}
+                    onChange={e => setForm(f => ({ ...f, tanggal_mulai: e.target.value }))}
+                    className="bg-white/5 border-white/10 text-white h-11 focus:border-primary-500/50 focus:ring-primary-500/20 [color-scheme:dark]"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-white/40 text-xs">Selesai</span>
+                  <Input
+                    type="date"
+                    value={form.tanggal_selesai}
+                    onChange={e => setForm(f => ({ ...f, tanggal_selesai: e.target.value }))}
+                    className="bg-white/5 border-white/10 text-white h-11 focus:border-primary-500/50 focus:ring-primary-500/20 [color-scheme:dark]"
+                  />
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Switch
-                checked={form.is_active}
-                onCheckedChange={checked => setForm(f => ({ ...f, is_active: checked }))}
-              />
-              <Label className="text-white/70">Berita Aktif</Label>
+
+            {/* Toggle aktif — styled custom */}
+            <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-white/3 border border-white/5">
+              <div>
+                <p className="text-white text-sm font-medium">Berita Aktif</p>
+                <p className="text-white/30 text-xs mt-0.5">Tampilkan berita sebagai pop-up di portal</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setForm(f => ({ ...f, is_active: !f.is_active }))}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-200 ${
+                  form.is_active
+                    ? 'bg-gradient-to-r from-primary-500 to-teal-500 shadow-lg shadow-primary-500/20'
+                    : 'bg-white/10'
+                }`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
+                    form.is_active ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="ghost"
               onClick={() => setDialogOpen(false)}
@@ -279,7 +302,7 @@ export function AdminNewsPage() {
             <Button
               onClick={handleSave}
               disabled={!form.judul || !form.isi_teks}
-              className="bg-gradient-to-r from-primary-500 to-teal-600 hover:from-primary-400 hover:to-teal-500 text-white"
+              className="bg-gradient-to-r from-primary-500 to-teal-600 hover:from-primary-400 hover:to-teal-500 text-white px-6"
             >
               {editingNews ? 'Simpan Perubahan' : 'Tambah Berita'}
             </Button>
@@ -322,7 +345,7 @@ export function AdminNewsPage() {
           <p className="text-white/50 text-sm">
             Berita <strong className="text-white">{deletingNews?.judul}</strong> akan dihapus secara permanen.
           </p>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="ghost"
               onClick={() => setDeleteDialogOpen(false)}

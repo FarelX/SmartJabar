@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
@@ -69,7 +68,6 @@ export function AdminServicesPage() {
 
   const handleSave = () => {
     if (editingService) {
-      // Edit
       setServices(prev =>
         prev.map(s =>
           s.id === editingService.id
@@ -83,7 +81,6 @@ export function AdminServicesPage() {
         )
       )
     } else {
-      // Create
       const newService: Service = {
         id: Math.max(...services.map(s => s.id)) + 1,
         ...form,
@@ -211,44 +208,44 @@ export function AdminServicesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="glass-strong border-white/10 bg-primary-950/95 backdrop-blur-2xl max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-white">
+            <DialogTitle className="text-white text-lg">
               {editingService ? 'Edit Layanan' : 'Tambah Layanan Baru'}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-5 py-4">
             <div className="space-y-2">
-              <Label className="text-white/70">Nama Layanan</Label>
+              <Label className="text-white/70 text-sm">Nama Layanan</Label>
               <Input
                 value={form.nama}
                 onChange={e => setForm(f => ({ ...f, nama: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white"
+                className="bg-white/5 border-white/10 text-white h-11 focus:border-primary-500/50 focus:ring-primary-500/20"
                 placeholder="Contoh: JABAR SMART ASN"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-white/70">Deskripsi</Label>
+              <Label className="text-white/70 text-sm">Deskripsi</Label>
               <Textarea
                 value={form.deskripsi}
                 onChange={e => setForm(f => ({ ...f, deskripsi: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white min-h-[80px]"
+                className="bg-white/5 border-white/10 text-white min-h-[90px] focus:border-primary-500/50 focus:ring-primary-500/20 resize-none"
                 placeholder="Deskripsi singkat layanan..."
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-white/70">URL Tujuan</Label>
+              <Label className="text-white/70 text-sm">URL Tujuan</Label>
               <Input
                 value={form.url_tujuan}
                 onChange={e => setForm(f => ({ ...f, url_tujuan: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white"
+                className="bg-white/5 border-white/10 text-white h-11 focus:border-primary-500/50 focus:ring-primary-500/20"
                 placeholder="https://..."
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-white/70">Kategori</Label>
+              <Label className="text-white/70 text-sm">Kategori</Label>
               <select
                 value={form.category_id}
                 onChange={e => setForm(f => ({ ...f, category_id: Number(e.target.value) }))}
-                className="w-full h-10 rounded-md bg-white/5 border border-white/10 text-white px-3 text-sm"
+                className="w-full h-11 rounded-lg bg-white/5 border border-white/10 text-white px-3 text-sm focus:outline-none focus:border-primary-500/50 focus:ring-1 focus:ring-primary-500/20 transition-colors"
               >
                 {mockCategories.map(cat => (
                   <option key={cat.id} value={cat.id} className="bg-primary-950 text-white">
@@ -257,15 +254,31 @@ export function AdminServicesPage() {
                 ))}
               </select>
             </div>
-            <div className="flex items-center gap-3">
-              <Switch
-                checked={form.is_active}
-                onCheckedChange={checked => setForm(f => ({ ...f, is_active: checked }))}
-              />
-              <Label className="text-white/70">Layanan Aktif</Label>
+
+            {/* Toggle aktif — styled custom */}
+            <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-white/3 border border-white/5">
+              <div>
+                <p className="text-white text-sm font-medium">Layanan Aktif</p>
+                <p className="text-white/30 text-xs mt-0.5">Tampilkan layanan di portal publik</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setForm(f => ({ ...f, is_active: !f.is_active }))}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-200 ${
+                  form.is_active
+                    ? 'bg-gradient-to-r from-primary-500 to-teal-500 shadow-lg shadow-primary-500/20'
+                    : 'bg-white/10'
+                }`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
+                    form.is_active ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="ghost"
               onClick={() => setDialogOpen(false)}
@@ -276,7 +289,7 @@ export function AdminServicesPage() {
             <Button
               onClick={handleSave}
               disabled={!form.nama || !form.url_tujuan}
-              className="bg-gradient-to-r from-primary-500 to-teal-600 hover:from-primary-400 hover:to-teal-500 text-white"
+              className="bg-gradient-to-r from-primary-500 to-teal-600 hover:from-primary-400 hover:to-teal-500 text-white px-6"
             >
               {editingService ? 'Simpan Perubahan' : 'Tambah Layanan'}
             </Button>
@@ -293,7 +306,7 @@ export function AdminServicesPage() {
           <p className="text-white/50 text-sm">
             Layanan <strong className="text-white">{deletingService?.nama}</strong> akan dihapus secara permanen.
           </p>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="ghost"
               onClick={() => setDeleteDialogOpen(false)}
