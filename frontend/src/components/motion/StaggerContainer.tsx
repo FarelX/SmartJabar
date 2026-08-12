@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion'
-import { staggerContainerVariants } from '@/lib/motion'
+import { motion, useReducedMotion } from 'framer-motion'
+import { staggerContainerVariants, reducedMotionVariants } from '@/lib/motion'
 import type { ReactNode } from 'react'
 
 interface StaggerContainerProps {
@@ -11,6 +11,7 @@ interface StaggerContainerProps {
 
 /**
  * StaggerContainer — Wrapper grid/list container yang memicu animasi berurutan pada anak-anaknya.
+ * Respek prefers-reduced-motion: gunakan instant variants bila diaktifkan.
  */
 export function StaggerContainer({
   children,
@@ -18,10 +19,12 @@ export function StaggerContainer({
   layoutKey,
   viewportMargin = '-30px',
 }: StaggerContainerProps) {
+  const prefersReduced = useReducedMotion()
+
   return (
     <motion.div
       key={layoutKey}
-      variants={staggerContainerVariants}
+      variants={prefersReduced ? reducedMotionVariants : staggerContainerVariants}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: viewportMargin }}

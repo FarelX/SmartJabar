@@ -141,7 +141,7 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8">
       {/* News Popup */}
       <NewsPopup news={activeNews} />
 
@@ -245,7 +245,7 @@ export function DashboardPage() {
 
       {/* Edit Service Dialog (shadcn/ui) */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-slate-900">
               Edit Layanan
@@ -319,18 +319,18 @@ export function DashboardPage() {
               />
             </div>
           </div>
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-2 flex-col-reverse sm:flex-row">
             <Button
               variant="outline"
               onClick={() => setEditDialogOpen(false)}
-              className="border-slate-200 text-slate-700 hover:bg-slate-100"
+              className="w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-100"
             >
               Batal
             </Button>
             <Button
               onClick={handleSaveEdit}
               disabled={!form.nama.trim() || !form.url_tujuan.trim()}
-              className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
+              className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
             >
               Simpan Perubahan
             </Button>
@@ -340,7 +340,7 @@ export function DashboardPage() {
 
       {/* Delete Service Confirmation Dialog (shadcn/ui) */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-md bg-white border-slate-200 text-slate-900 shadow-xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-md bg-white border-slate-200 text-slate-900 shadow-xl">
           <DialogHeader>
             <div className="flex items-center gap-2.5 text-red-600">
               <div className="p-2 rounded-lg bg-red-50 border border-red-100">
