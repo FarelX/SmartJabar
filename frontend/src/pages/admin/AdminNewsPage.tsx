@@ -22,9 +22,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Plus, Pencil, Trash2, Eye, Calendar, Newspaper } from 'lucide-react'
+import { DatePicker, ConfigProvider } from 'antd'
+import dayjs from 'dayjs'
 import { toast } from 'sonner'
 import { mockNews } from '@/lib/mock/news'
 import type { News, NewsFormData } from '@/types'
+
+const { RangePicker } = DatePicker
 
 const emptyForm: NewsFormData = {
   judul: '',
@@ -253,30 +257,44 @@ export function AdminNewsPage() {
               />
             </div>
 
-            {/* Date range with shadcn Label & Input */}
-            <div className="space-y-2">
+            {/* Date range with Ant Design RangePicker */}
+            <div className="space-y-1.5">
               <Label className="text-slate-700 text-xs font-semibold flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5 text-slate-500" />
                 Periode Tayang
               </Label>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <span className="text-slate-400 text-[11px]">Tanggal Mulai</span>
-                  <Input
-                    type="date"
-                    value={form.tanggal_mulai}
-                    onChange={e => setForm(f => ({ ...f, tanggal_mulai: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <span className="text-slate-400 text-[11px]">Tanggal Selesai</span>
-                  <Input
-                    type="date"
-                    value={form.tanggal_selesai}
-                    onChange={e => setForm(f => ({ ...f, tanggal_selesai: e.target.value }))}
-                  />
-                </div>
-              </div>
+              <ConfigProvider
+                theme={{
+                  token: {
+                    colorPrimary: '#2563eb',
+                    borderRadius: 8,
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    colorBorder: '#e2e8f0',
+                    colorBgContainer: '#ffffff',
+                  },
+                }}
+              >
+                <RangePicker
+                  value={
+                    form.tanggal_mulai && form.tanggal_selesai
+                      ? [dayjs(form.tanggal_mulai), dayjs(form.tanggal_selesai)]
+                      : form.tanggal_mulai
+                      ? [dayjs(form.tanggal_mulai), null]
+                      : null
+                  }
+                  onChange={(_dates, dateStrings) => {
+                    setForm(f => ({
+                      ...f,
+                      tanggal_mulai: dateStrings && dateStrings[0] ? dateStrings[0] : '',
+                      tanggal_selesai: dateStrings && dateStrings[1] ? dateStrings[1] : '',
+                    }))
+                  }}
+                  format="YYYY-MM-DD"
+                  placeholder={['Tanggal Mulai', 'Tanggal Selesai']}
+                  className="w-full h-10 rounded-lg border-slate-200 shadow-2xs"
+                  allowClear
+                />
+              </ConfigProvider>
             </div>
 
             {/* Toggle Aktif with shadcn Switch */}

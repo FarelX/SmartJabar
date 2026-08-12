@@ -49,7 +49,11 @@ export function LoginPage() {
           </div>
 
           {/* Welcome heading */}
-          <div className="mb-6">
+         
+
+          {/* SSO Action Box */}
+          <div className="p-6 sm:p-7 mb-6 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl rounded-2xl">
+             <div className="mb-6">
             <h2 className="text-slate-900 text-2xl font-bold mb-2">
               Selamat Datang
             </h2>
@@ -57,9 +61,6 @@ export function LoginPage() {
               Masuk menggunakan akun Single Sign-On (SSO) Jawa Barat untuk mengakses seluruh layanan administrasi pemerintahan.
             </p>
           </div>
-
-          {/* SSO Action Box */}
-          <div className="p-6 sm:p-7 mb-6 bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl rounded-2xl">
             <Button
               onClick={handleSSOLogin}
               className="w-full h-12 bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-semibold text-sm sm:text-base rounded-xl shadow-md shadow-primary-500/25 hover:shadow-primary-500/35 transition-all duration-300 group cursor-pointer"
@@ -102,7 +103,7 @@ export function LoginPage() {
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary-500/10 rounded-full blur-2xl pointer-events-none" />
 
             <h3 className="text-2xl font-bold text-slate-900 mb-2 leading-tight">
-              <span className="text-gradient-warm">Satu Login</span> untuk
+              <span className="text-gradient">Satu Login</span> untuk
               <br />semua Layanan
             </h3>
             <p className="text-primary-700 text-xs font-semibold mb-3">

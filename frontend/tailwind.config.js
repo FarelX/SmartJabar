@@ -73,7 +73,7 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['roboto', 'system-ui', '-apple-system', 'sans-serif'],
       },
       backdropBlur: {
         glass: '16px',

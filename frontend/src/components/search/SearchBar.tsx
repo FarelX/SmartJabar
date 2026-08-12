@@ -16,9 +16,10 @@ export function SearchBar({ value, onChange, placeholder = 'Cari layanan...' }: 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="pl-12 h-12 bg-white/95 border-slate-200 text-slate-900 placeholder:text-slate-400 rounded-xl shadow-xs focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-500/20 transition-all text-base"
+        className="pl-12 h-12 glass bg-white/70 hover:bg-white/85 border-white/80 text-slate-900 placeholder:text-slate-400 rounded-2xl shadow-xs focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-500/20 transition-all text-base"
       />
     </div>
   )
 }
+
 

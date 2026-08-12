@@ -45,7 +45,7 @@ export function DashboardPage() {
   const { user } = useAuth()
   const [services, setServices] = useState<Service[]>(mockServices)
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
 
   // State dialog Edit / Delete
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -73,13 +73,13 @@ export function DashboardPage() {
       )
     }
 
-    // Category filter
-    if (selectedCategories.length > 0) {
-      result = result.filter(s => selectedCategories.includes(s.category_id))
+    // Category filter (Single select)
+    if (selectedCategory !== null) {
+      result = result.filter(s => s.category_id === selectedCategory)
     }
 
     return result
-  }, [services, searchQuery, selectedCategories])
+  }, [services, searchQuery, selectedCategory])
 
   // Handle service click — log usage & open URL
   const handleServiceClick = (service: Service) => {
@@ -189,8 +189,8 @@ export function DashboardPage() {
           />
           <CategoryFilter
             categories={mockCategories}
-            selected={selectedCategories}
-            onChange={setSelectedCategories}
+            selected={selectedCategory}
+            onChange={setSelectedCategory}
           />
         </div>
       </section>
@@ -210,7 +210,7 @@ export function DashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="p-12 text-center bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 shadow-xs">
+          <div className="glass-card p-12 text-center">
             <Layers className="h-10 w-10 text-slate-300 mx-auto mb-2" />
             <p className="text-slate-500 text-sm">
               Tidak ada layanan yang sesuai dengan pencarian Anda.
