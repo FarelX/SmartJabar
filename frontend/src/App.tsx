@@ -15,55 +15,86 @@ const AdminServicesPage = lazy(() => import('@/pages/admin/AdminServicesPage').t
 const AdminNewsPage = lazy(() => import('@/pages/admin/AdminNewsPage').then(m => ({ default: m.AdminNewsPage })))
 const AdminCategoriesPage = lazy(() => import('@/pages/admin/AdminCategoriesPage').then(m => ({ default: m.AdminCategoriesPage })))
 
+/**
+ * Thin Suspense wrapper for per-route granular loading.
+ * Falls back to LoadingFallback only while the route's chunk is being fetched —
+ * other parts of the layout (navbar, etc.) remain stable during navigation.
+ */
+function RouteSuspense({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      {children}
+    </Suspense>
+  )
+}
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            {/* Auth routes */}
-            <Route element={<AuthLayout />}>
-              <Route path="/login" element={<LoginPage />} />
-            </Route>
-
-            {/* Protected routes */}
+        <Routes>
+          {/* Auth routes */}
+          <Route element={<AuthLayout />}>
             <Route
+              path="/login"
               element={
-                <ProtectedRoute>
-                  <MainLayout />
-                </ProtectedRoute>
+                <RouteSuspense>
+                  <LoginPage />
+                </RouteSuspense>
               }
-            >
-              <Route path="/" element={<DashboardPage />} />
+            />
+          </Route>
 
-              {/* Admin routes */}
-              <Route
-                path="/admin/layanan"
-                element={
-                  <AdminRoute>
+          {/* Protected routes */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route
+              path="/"
+              element={
+                <RouteSuspense>
+                  <DashboardPage />
+                </RouteSuspense>
+              }
+            />
+
+            {/* Admin routes */}
+            <Route
+              path="/admin/layanan"
+              element={
+                <AdminRoute>
+                  <RouteSuspense>
                     <AdminServicesPage />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/berita"
-                element={
-                  <AdminRoute>
+                  </RouteSuspense>
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/berita"
+              element={
+                <AdminRoute>
+                  <RouteSuspense>
                     <AdminNewsPage />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/admin/kategori"
-                element={
-                  <AdminRoute>
+                  </RouteSuspense>
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/kategori"
+              element={
+                <AdminRoute>
+                  <RouteSuspense>
                     <AdminCategoriesPage />
-                  </AdminRoute>
-                }
-              />
-            </Route>
-          </Routes>
-        </Suspense>
+                  </RouteSuspense>
+                </AdminRoute>
+              }
+            />
+          </Route>
+        </Routes>
         <Toaster position="top-right" richColors />
       </AuthProvider>
     </BrowserRouter>
@@ -71,5 +102,3 @@ function App() {
 }
 
 export default App
-
-

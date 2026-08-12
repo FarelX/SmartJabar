@@ -63,7 +63,7 @@ export function AdminCategoriesPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       {/* Page Header */}
       <FadeInView direction="down">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -125,7 +125,7 @@ export function AdminCategoriesPage() {
 
       {/* Create/Edit Dialog (shadcn/ui) */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md bg-white border-slate-200 text-slate-900 shadow-xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-md bg-white border-slate-200 text-slate-900 shadow-xl">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-slate-900">
               {editingCategory ? 'Edit Kategori' : 'Tambah Kategori Baru'}
@@ -143,18 +143,18 @@ export function AdminCategoriesPage() {
               autoFocus
             />
           </div>
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-2 flex-col-reverse sm:flex-row">
             <Button
               variant="outline"
               onClick={() => setDialogOpen(false)}
-              className="border-slate-200 text-slate-700 hover:bg-slate-100"
+              className="w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-100"
             >
               Batal
             </Button>
             <Button
               onClick={handleSave}
               disabled={!formNama.trim()}
-              className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
+              className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
             >
               {editingCategory ? 'Simpan Perubahan' : 'Tambah Kategori'}
             </Button>
@@ -164,7 +164,7 @@ export function AdminCategoriesPage() {
 
       {/* Delete Dialog (shadcn/ui) */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-md bg-white border-slate-200 text-slate-900 shadow-xl">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-md bg-white border-slate-200 text-slate-900 shadow-xl">
           <DialogHeader>
             <div className="flex items-center gap-2.5 text-red-600">
               <div className="p-2 rounded-lg bg-red-50 border border-red-100">

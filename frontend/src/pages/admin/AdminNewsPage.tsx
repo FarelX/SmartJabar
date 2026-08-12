@@ -143,7 +143,7 @@ export function AdminNewsPage() {
 
       {/* News Table Card */}
       <FadeInView delay={0.08}>
-        <div className="bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
+        <div className="bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/90 shadow-xs overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="border-slate-100 bg-slate-50/70 hover:bg-slate-50/70">
@@ -227,7 +227,7 @@ export function AdminNewsPage() {
 
       {/* Create/Edit Dialog (Pure shadcn/ui components) */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-slate-900">
               {editingNews ? 'Edit Berita & Pengumuman' : 'Tambah Berita Baru'}
@@ -315,18 +315,18 @@ export function AdminNewsPage() {
               />
             </div>
           </div>
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-2 flex-col-reverse sm:flex-row">
             <Button
               variant="outline"
               onClick={() => setDialogOpen(false)}
-              className="border-slate-200 text-slate-700 hover:bg-slate-100"
+              className="w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-100"
             >
               Batal
             </Button>
             <Button
               onClick={handleSave}
               disabled={!form.judul.trim() || !form.isi_teks.trim()}
-              className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
+              className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
             >
               {editingNews ? 'Simpan Perubahan' : 'Tambah Berita'}
             </Button>
@@ -336,7 +336,7 @@ export function AdminNewsPage() {
 
       {/* Preview Dialog (Pure shadcn/ui) */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <DialogContent className="sm:max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl p-0 overflow-hidden">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl p-0 overflow-hidden max-h-[90dvh] flex flex-col">
           <DialogHeader className="p-5 pb-0">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-primary-50 border border-primary-100 flex items-center justify-center">
@@ -353,9 +353,9 @@ export function AdminNewsPage() {
             </div>
           </DialogHeader>
           {previewNews && (
-            <div className="p-5 pt-3 space-y-4">
+            <div className="p-4 sm:p-5 pt-3 space-y-4 overflow-y-auto flex-1 min-h-0">
               {previewNews.gambar_url && (
-                <div className="w-full h-48 rounded-lg overflow-hidden bg-slate-100 border border-slate-200/80">
+                <div className="w-full h-36 sm:h-48 rounded-lg overflow-hidden bg-slate-100 border border-slate-200/80">
                   <img
                     src={previewNews.gambar_url}
                     alt={previewNews.judul}
@@ -390,11 +390,11 @@ export function AdminNewsPage() {
               </div>
             </div>
           )}
-          <DialogFooter className="p-4 pt-0 border-t border-slate-100 bg-slate-50/50">
+          <DialogFooter className="p-4 pt-0 border-t border-slate-100 bg-slate-50/50 shrink-0">
             <Button
               variant="outline"
               onClick={() => setPreviewDialogOpen(false)}
-              className="border-slate-200 text-slate-700 hover:bg-slate-100 text-xs h-9"
+              className="w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-100 text-xs h-9"
             >
               Tutup Pratinjau
             </Button>

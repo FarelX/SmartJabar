@@ -153,7 +153,7 @@ export function AdminServicesPage() {
 
       {/* Table Card */}
       <FadeInView delay={0.1}>
-        <div className="bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
+        <div className="bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/90 shadow-xs overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="border-slate-100 bg-slate-50/70 hover:bg-slate-50/70">
@@ -243,7 +243,7 @@ export function AdminServicesPage() {
 
       {/* Create/Edit Dialog (shadcn/ui) */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-slate-900">
               {editingService ? 'Edit Layanan' : 'Tambah Layanan Baru'}
@@ -317,18 +317,18 @@ export function AdminServicesPage() {
               />
             </div>
           </div>
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-2 flex-col-reverse sm:flex-row">
             <Button
               variant="outline"
               onClick={() => setDialogOpen(false)}
-              className="border-slate-200 text-slate-700 hover:bg-slate-100"
+              className="w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-100"
             >
               Batal
             </Button>
             <Button
               onClick={handleSave}
               disabled={!form.nama.trim() || !form.url_tujuan.trim()}
-              className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
+              className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
             >
               {editingService ? 'Simpan Perubahan' : 'Tambah Layanan'}
             </Button>

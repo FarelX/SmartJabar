@@ -272,9 +272,19 @@ Realm SSO yang dipakai: `ssojabar` di `https://sso.jabarprov.go.id`.
 ### 8.2 Yang masih perlu ditindaklanjuti (action items tim)
 
 - [x] **Redirect URI diusulkan:** `GET /api/auth/sso/callback` di backend Laravel — misalnya `http://localhost:8000/api/auth/sso/callback` untuk development dan `https://{domain-production}/api/auth/sso/callback` untuk production/staging. Infokan kedua-duanya ke mentor (tanyakan apakah Keycloak bisa daftar lebih dari satu redirect_uri per client, karena biasanya harus persis sama dengan yang dipakai saat request).
-- [ ] Tunggu mentor memberikan `client_id` dan `client_secret` untuk realm `ssojabar` (setelah `redirect_uri` diinfokan).
-- [ ] `client_secret` **hanya boleh disimpan di backend** (`.env` Laravel), jangan pernah diekspos ke frontend/browser.
+- [x] `client_id` & `client_secret` sudah diterima dari mentor (Pa Reza Aptika) — **simpan hanya di `.env` backend, jangan pernah commit ke git atau taruh di frontend.**
+- [ ] Konfirmasi ulang ke mentor: username/password yang diberikan itu untuk apa (dugaan sementara: akun test/dummy ASN untuk coba login di form SSO).
 - [ ] Cek ke mentor apakah ada mekanisme _single logout_ dari sisi SSO, atau logout cukup dilakukan dengan menghapus sesi lokal + `access_token`/`refresh_token` di backend.
+
+### 8.3 Testing Manual Alur Login
+
+Karena sesi SSO tersimpan di cookie browser (`sso.jabarprov.go.id`), begitu login sekali, browser akan auto-login pakai sesi lama saat flow login SSO diulang. Untuk mengetes ulang dari awal (form login muncul lagi), buka URL berikut di browser sebelum mengulang test:
+
+```
+https://sso.jabarprov.go.id/realms/ssojabar/protocol/openid-connect/logout
+```
+
+Berguna untuk bergantian testing antar anggota tim tanpa harus clear cookies manual.
 
 ## 9. Struktur Folder (Usulan)
 
