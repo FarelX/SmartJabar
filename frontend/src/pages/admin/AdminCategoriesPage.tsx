@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { FadeInView, StaggerContainer, StaggerItem } from '@/components/motion'
 import {
   Dialog,
   DialogContent,
@@ -64,62 +65,63 @@ export function AdminCategoriesPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Kelola Kategori Layanan</h1>
-          <p className="text-slate-500 text-sm">{categories.length} kategori terdaftar</p>
+      <FadeInView direction="down">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Kelola Kategori Layanan</h1>
+            <p className="text-slate-500 text-sm">{categories.length} kategori terdaftar</p>
+          </div>
+          <Button
+            onClick={openCreate}
+            className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Tambah Kategori
+          </Button>
         </div>
-        <Button
-          onClick={openCreate}
-          className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Tambah Kategori
-        </Button>
-      </div>
+      </FadeInView>
 
       {/* Category List */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+      <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
         {categories.map(cat => (
-          <div
-            key={cat.id}
-            className="p-4 flex items-center justify-between bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-primary-300 transition-all duration-200"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-50 to-teal-50 border border-primary-100 flex items-center justify-center shrink-0">
-                <Tag className="h-4 w-4 text-primary-600" />
+          <StaggerItem key={cat.id}>
+            <div className="p-4 flex items-center justify-between bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-primary-300 transition-all duration-200">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-50 to-teal-50 border border-primary-100 flex items-center justify-center shrink-0">
+                  <Tag className="h-4 w-4 text-primary-600" />
+                </div>
+                <div>
+                  <span className="text-slate-800 font-semibold text-sm block">{cat.nama}</span>
+                  <span className="text-slate-400 text-[11px]">ID: #{cat.id}</span>
+                </div>
               </div>
-              <div>
-                <span className="text-slate-800 font-semibold text-sm block">{cat.nama}</span>
-                <span className="text-slate-400 text-[11px]">ID: #{cat.id}</span>
+              <div className="flex gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  title="Edit Kategori"
+                  className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-primary-600 hover:bg-primary-50 shadow-2xs"
+                  onClick={() => openEdit(cat)}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  title="Hapus Kategori"
+                  className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 shadow-2xs"
+                  onClick={() => {
+                    setDeletingCategory(cat)
+                    setDeleteDialogOpen(true)
+                  }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
               </div>
             </div>
-            <div className="flex gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                title="Edit Kategori"
-                className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-primary-600 hover:bg-primary-50 shadow-2xs"
-                onClick={() => openEdit(cat)}
-              >
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                title="Hapus Kategori"
-                className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 shadow-2xs"
-                onClick={() => {
-                  setDeletingCategory(cat)
-                  setDeleteDialogOpen(true)
-                }}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerContainer>
 
       {/* Create/Edit Dialog (shadcn/ui) */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

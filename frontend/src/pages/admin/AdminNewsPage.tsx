@@ -25,6 +25,8 @@ import { Plus, Pencil, Trash2, Eye, Calendar, Newspaper } from 'lucide-react'
 import { DatePicker, ConfigProvider } from 'antd'
 import dayjs from 'dayjs'
 import { toast } from 'sonner'
+import { FadeInView } from '@/components/motion'
+import { ImageUpload } from '@/components/shared/ImageUpload'
 import { mockNews } from '@/lib/mock/news'
 import type { News, NewsFormData } from '@/types'
 
@@ -121,103 +123,107 @@ export function AdminNewsPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Kelola Berita & Pengumuman</h1>
-          <p className="text-slate-500 text-sm">{newsList.length} pengumuman terdaftar</p>
+      <FadeInView direction="down">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Kelola Berita & Pengumuman</h1>
+            <p className="text-slate-500 text-sm">{newsList.length} pengumuman terdaftar</p>
+          </div>
+          <Button
+            onClick={openCreate}
+            className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white shadow-sm font-medium"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Tambah Berita
+          </Button>
         </div>
-        <Button
-          onClick={openCreate}
-          className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white shadow-sm font-medium"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Tambah Berita
-        </Button>
-      </div>
+      </FadeInView>
 
       {/* News Table Card */}
-      <div className="bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-slate-100 bg-slate-50/70 hover:bg-slate-50/70">
-              <TableHead className="text-slate-600 font-semibold">Judul Pengumuman</TableHead>
-              <TableHead className="text-slate-600 font-semibold hidden md:table-cell">Mulai</TableHead>
-              <TableHead className="text-slate-600 font-semibold hidden md:table-cell">Selesai</TableHead>
-              <TableHead className="text-slate-600 font-semibold">Status</TableHead>
-              <TableHead className="text-slate-600 font-semibold text-right">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {newsList.map(news => (
-              <TableRow key={news.id} className="border-slate-100 hover:bg-slate-50/80 transition-colors">
-                <TableCell className="text-slate-900 font-medium max-w-[260px] truncate">
-                  <div className="flex items-center gap-2">
-                    <Newspaper className="h-4 w-4 text-slate-400 shrink-0" />
-                    <span className="truncate">{news.judul}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-slate-500 text-xs hidden md:table-cell font-medium">
-                  {formatDate(news.tanggal_mulai)}
-                </TableCell>
-                <TableCell className="text-slate-500 text-xs hidden md:table-cell font-medium">
-                  {formatDate(news.tanggal_selesai)}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={
-                      news.is_active
-                        ? 'text-[10px] border-teal-200 text-teal-700 bg-teal-50 font-semibold'
-                        : 'text-[10px] border-red-200 text-red-600 bg-red-50 font-semibold'
-                    }
-                  >
-                    {news.is_active ? 'Aktif' : 'Nonaktif'}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-1">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      title="Pratinjau Berita"
-                      className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-primary-600 hover:bg-primary-50 shadow-2xs"
-                      onClick={() => {
-                        setPreviewNews(news)
-                        setPreviewDialogOpen(true)
-                      }}
-                    >
-                      <Eye className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      title="Edit Berita"
-                      className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-primary-600 hover:bg-primary-50 shadow-2xs"
-                      onClick={() => openEdit(news)}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      title="Hapus Berita"
-                      className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 shadow-2xs"
-                      onClick={() => {
-                        setDeletingNews(news)
-                        setDeleteDialogOpen(true)
-                      }}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </TableCell>
+      <FadeInView delay={0.08}>
+        <div className="bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-slate-100 bg-slate-50/70 hover:bg-slate-50/70">
+                <TableHead className="text-slate-600 font-semibold">Judul Pengumuman</TableHead>
+                <TableHead className="text-slate-600 font-semibold hidden md:table-cell">Mulai</TableHead>
+                <TableHead className="text-slate-600 font-semibold hidden md:table-cell">Selesai</TableHead>
+                <TableHead className="text-slate-600 font-semibold">Status</TableHead>
+                <TableHead className="text-slate-600 font-semibold text-right">Aksi</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {newsList.map(news => (
+                <TableRow key={news.id} className="border-slate-100 hover:bg-slate-50/80 transition-colors">
+                  <TableCell className="text-slate-900 font-medium max-w-[260px] truncate">
+                    <div className="flex items-center gap-2">
+                      <Newspaper className="h-4 w-4 text-slate-400 shrink-0" />
+                      <span className="truncate">{news.judul}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-slate-500 text-xs hidden md:table-cell font-medium">
+                    {formatDate(news.tanggal_mulai)}
+                  </TableCell>
+                  <TableCell className="text-slate-500 text-xs hidden md:table-cell font-medium">
+                    {formatDate(news.tanggal_selesai)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={
+                        news.is_active
+                          ? 'text-[10px] border-teal-200 text-teal-700 bg-teal-50 font-semibold'
+                          : 'text-[10px] border-red-200 text-red-600 bg-red-50 font-semibold'
+                      }
+                    >
+                      {news.is_active ? 'Aktif' : 'Nonaktif'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        title="Pratinjau Berita"
+                        className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-primary-600 hover:bg-primary-50 shadow-2xs"
+                        onClick={() => {
+                          setPreviewNews(news)
+                          setPreviewDialogOpen(true)
+                        }}
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        title="Edit Berita"
+                        className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-primary-600 hover:bg-primary-50 shadow-2xs"
+                        onClick={() => openEdit(news)}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        title="Hapus Berita"
+                        className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 shadow-2xs"
+                        onClick={() => {
+                          setDeletingNews(news)
+                          setDeleteDialogOpen(true)
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </FadeInView>
 
       {/* Create/Edit Dialog (Pure shadcn/ui components) */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -248,14 +254,14 @@ export function AdminNewsPage() {
                 placeholder="Tuliskan isi detail berita atau pengumuman..."
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-slate-700 text-xs font-semibold">URL Banner / Gambar (opsional)</Label>
-              <Input
-                value={form.gambar_url}
-                onChange={e => setForm(f => ({ ...f, gambar_url: e.target.value }))}
-                placeholder="https://..."
-              />
-            </div>
+            <ImageUpload
+              value={form.gambar_url}
+              onChange={(url) => setForm(f => ({ ...f, gambar_url: url }))}
+              onRemove={() => setForm(f => ({ ...f, gambar_url: '' }))}
+              label="Banner / Gambar Pengumuman (opsional)"
+              aspectRatio="banner"
+              maxSizeMB={5}
+            />
 
             {/* Date range with Ant Design RangePicker */}
             <div className="space-y-1.5">

@@ -30,6 +30,8 @@ import {
 } from '@/components/ui/table'
 import { Plus, Pencil, Trash2, Search, ExternalLink, Layers } from 'lucide-react'
 import { toast } from 'sonner'
+import { FadeInView } from '@/components/motion'
+import { ImageUpload } from '@/components/shared/ImageUpload'
 import { mockServices } from '@/lib/mock/services'
 import { mockCategories } from '@/lib/mock/categories'
 import type { Service, ServiceFormData } from '@/types'
@@ -118,35 +120,40 @@ export function AdminServicesPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Kelola Layanan</h1>
-          <p className="text-slate-500 text-sm">{services.length} layanan terdaftar di sistem</p>
+      <FadeInView direction="down">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Kelola Layanan</h1>
+            <p className="text-slate-500 text-sm">{services.length} layanan terdaftar di sistem</p>
+          </div>
+          <Button
+            onClick={openCreate}
+            className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Tambah Layanan
+          </Button>
         </div>
-        <Button
-          onClick={openCreate}
-          className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Tambah Layanan
-        </Button>
-      </div>
+      </FadeInView>
 
       {/* Search Input */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-        <Input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Cari nama atau deskripsi layanan..."
-          className="pl-10 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 shadow-xs"
-        />
-      </div>
+      <FadeInView delay={0.05}>
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+          <Input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Cari nama atau deskripsi layanan..."
+            className="pl-10 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 shadow-xs"
+          />
+        </div>
+      </FadeInView>
 
       {/* Table Card */}
-      <div className="bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
+      <FadeInView delay={0.1}>
+        <div className="bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="border-slate-100 bg-slate-50/70 hover:bg-slate-50/70">
@@ -231,7 +238,8 @@ export function AdminServicesPage() {
             ))}
           </TableBody>
         </Table>
-      </div>
+        </div>
+      </FadeInView>
 
       {/* Create/Edit Dialog (shadcn/ui) */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -270,14 +278,14 @@ export function AdminServicesPage() {
                 placeholder="https://..."
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-slate-700 text-xs font-semibold">URL Logo / Ikon (opsional)</Label>
-              <Input
-                value={form.icon_url}
-                onChange={e => setForm(f => ({ ...f, icon_url: e.target.value }))}
-                placeholder="https://..."
-              />
-            </div>
+            <ImageUpload
+              value={form.icon_url}
+              onChange={(url) => setForm(f => ({ ...f, icon_url: url }))}
+              onRemove={() => setForm(f => ({ ...f, icon_url: '' }))}
+              label="Logo / Ikon Layanan"
+              aspectRatio="square"
+              maxSizeMB={5}
+            />
             <div className="space-y-1.5">
               <Label className="text-slate-700 text-xs font-semibold">Kategori</Label>
               <Select

@@ -5,6 +5,8 @@ import { CategoryFilter } from '@/components/search/CategoryFilter'
 import { QuickAccessCard } from '@/components/services/QuickAccessCard'
 import { ServiceCard } from '@/components/services/ServiceCard'
 import { NewsPopup } from '@/components/news/NewsPopup'
+import { FadeInView } from '@/components/motion'
+import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -120,6 +122,7 @@ export function DashboardPage() {
     )
     setEditDialogOpen(false)
     toast.success(`Layanan "${form.nama}" berhasil diperbarui!`)
+    setActiveService(null)
   }
 
   // Handle Open Delete Modal
@@ -143,7 +146,7 @@ export function DashboardPage() {
       <NewsPopup news={activeNews} />
 
       {/* Welcome Section */}
-      <section>
+      <FadeInView direction="down">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">
@@ -154,28 +157,38 @@ export function DashboardPage() {
             </p>
           </div>
         </div>
-      </section>
+      </FadeInView>
 
       {/* Quick Access — Top 3 */}
       <section>
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="h-5 w-5 text-amber-500" />
-          <h2 className="text-slate-900 font-bold text-lg">Layanan Terpopuler</h2>
-        </div>
+        <FadeInView direction="down">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="h-5 w-5 text-amber-500" />
+            <h2 className="text-slate-900 font-bold text-lg">Layanan Terpopuler</h2>
+          </div>
+        </FadeInView>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {topServices.map((service, index) => (
-            <QuickAccessCard
+            <FadeInView
               key={service.id}
-              service={service}
-              rank={index + 1}
-              onServiceClick={handleServiceClick}
-            />
+              direction="up"
+              delay={index * 0.08}
+              amount={0.15}
+              margin="0px 0px -30px 0px"
+              className="h-full"
+            >
+              <QuickAccessCard
+                service={service}
+                rank={index + 1}
+                onServiceClick={handleServiceClick}
+              />
+            </FadeInView>
           ))}
         </div>
       </section>
 
       {/* Search & Filter */}
-      <section>
+      <FadeInView direction="down">
         <div className="flex items-center gap-2 mb-4">
           <LayoutGrid className="h-5 w-5 text-primary-600" />
           <h2 className="text-slate-900 font-bold text-lg">Semua Layanan</h2>
@@ -193,29 +206,40 @@ export function DashboardPage() {
             onChange={setSelectedCategory}
           />
         </div>
-      </section>
+      </FadeInView>
 
-      {/* Services Grid */}
+      {/* Services Grid — Scroll-Triggered Fade Up as Cards Enter Viewport */}
       <section>
         {filteredServices.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredServices.map((service) => (
-              <ServiceCard
+          <div
+            key={selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+          >
+            {filteredServices.map((service, index) => (
+              <FadeInView
                 key={service.id}
-                service={service}
-                onServiceClick={handleServiceClick}
-                onEdit={handleOpenEdit}
-                onDelete={handleOpenDelete}
-              />
+                direction="up"
+                delay={(index % 4) * 0.06}
+                amount={0.12}
+                margin="0px 0px -40px 0px"
+                className="h-full"
+              >
+                <ServiceCard
+                  service={service}
+                  onServiceClick={handleServiceClick}
+                  onEdit={handleOpenEdit}
+                  onDelete={handleOpenDelete}
+                />
+              </FadeInView>
             ))}
           </div>
         ) : (
-          <div className="glass-card p-12 text-center">
+          <FadeInView className="glass-card p-12 text-center">
             <Layers className="h-10 w-10 text-slate-300 mx-auto mb-2" />
             <p className="text-slate-500 text-sm">
               Tidak ada layanan yang sesuai dengan pencarian Anda.
             </p>
-          </div>
+          </FadeInView>
         )}
       </section>
 
@@ -256,14 +280,14 @@ export function DashboardPage() {
                 placeholder="https://..."
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-slate-700 text-xs font-semibold">URL Logo / Ikon (opsional)</Label>
-              <Input
-                value={form.icon_url}
-                onChange={e => setForm(f => ({ ...f, icon_url: e.target.value }))}
-                placeholder="https://..."
-              />
-            </div>
+            <ImageUpload
+              value={form.icon_url}
+              onChange={(url) => setForm(f => ({ ...f, icon_url: url }))}
+              onRemove={() => setForm(f => ({ ...f, icon_url: '' }))}
+              label="Logo / Ikon Layanan"
+              aspectRatio="square"
+              maxSizeMB={5}
+            />
             <div className="space-y-1.5">
               <Label className="text-slate-700 text-xs font-semibold">Kategori</Label>
               <Select
