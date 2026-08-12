@@ -1,15 +1,16 @@
 import { useState } from 'react'
-import { GlassCard } from '@/components/shared/GlassCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
 import {
@@ -20,7 +21,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Plus, Pencil, Trash2, Eye, Calendar } from 'lucide-react'
+import { Plus, Pencil, Trash2, Eye, Calendar, Newspaper } from 'lucide-react'
+import { toast } from 'sonner'
 import { mockNews } from '@/lib/mock/news'
 import type { News, NewsFormData } from '@/types'
 
@@ -78,6 +80,7 @@ export function AdminNewsPage() {
             : n
         )
       )
+      toast.success('Berita berhasil diperbarui!')
     } else {
       const newNews: News = {
         id: Math.max(...newsList.map(n => n.id), 0) + 1,
@@ -90,6 +93,7 @@ export function AdminNewsPage() {
         updated_at: new Date().toISOString(),
       }
       setNewsList(prev => [...prev, newNews])
+      toast.success('Berita baru berhasil ditambahkan!')
     }
     setDialogOpen(false)
   }
@@ -98,6 +102,7 @@ export function AdminNewsPage() {
     if (deletingNews) {
       setNewsList(prev => prev.filter(n => n.id !== deletingNews.id))
       setDeleteDialogOpen(false)
+      toast.success(`Berita "${deletingNews.judul}" berhasil dihapus.`)
       setDeletingNews(null)
     }
   }
@@ -113,42 +118,46 @@ export function AdminNewsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Kelola Berita</h1>
-          <p className="text-white/40 text-sm">{newsList.length} berita terdaftar</p>
+          <h1 className="text-2xl font-bold text-slate-900">Kelola Berita & Pengumuman</h1>
+          <p className="text-slate-500 text-sm">{newsList.length} pengumuman terdaftar</p>
         </div>
         <Button
           onClick={openCreate}
-          className="bg-gradient-to-r from-primary-500 to-teal-600 hover:from-primary-400 hover:to-teal-500 text-white"
+          className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white shadow-sm font-medium"
         >
           <Plus className="h-4 w-4 mr-2" />
           Tambah Berita
         </Button>
       </div>
 
-      {/* Table */}
-      <GlassCard className="overflow-hidden">
+      {/* News Table Card */}
+      <div className="bg-white/90 backdrop-blur-md rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="border-white/10 hover:bg-transparent">
-              <TableHead className="text-white/50">Judul</TableHead>
-              <TableHead className="text-white/50 hidden md:table-cell">Mulai</TableHead>
-              <TableHead className="text-white/50 hidden md:table-cell">Selesai</TableHead>
-              <TableHead className="text-white/50">Status</TableHead>
-              <TableHead className="text-white/50 text-right">Aksi</TableHead>
+            <TableRow className="border-slate-100 bg-slate-50/70 hover:bg-slate-50/70">
+              <TableHead className="text-slate-600 font-semibold">Judul Pengumuman</TableHead>
+              <TableHead className="text-slate-600 font-semibold hidden md:table-cell">Mulai</TableHead>
+              <TableHead className="text-slate-600 font-semibold hidden md:table-cell">Selesai</TableHead>
+              <TableHead className="text-slate-600 font-semibold">Status</TableHead>
+              <TableHead className="text-slate-600 font-semibold text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {newsList.map(news => (
-              <TableRow key={news.id} className="border-white/5 hover:bg-white/5">
-                <TableCell className="text-white font-medium max-w-[200px] truncate">
-                  {news.judul}
+              <TableRow key={news.id} className="border-slate-100 hover:bg-slate-50/80 transition-colors">
+                <TableCell className="text-slate-900 font-medium max-w-[260px] truncate">
+                  <div className="flex items-center gap-2">
+                    <Newspaper className="h-4 w-4 text-slate-400 shrink-0" />
+                    <span className="truncate">{news.judul}</span>
+                  </div>
                 </TableCell>
-                <TableCell className="text-white/40 text-xs hidden md:table-cell">
+                <TableCell className="text-slate-500 text-xs hidden md:table-cell font-medium">
                   {formatDate(news.tanggal_mulai)}
                 </TableCell>
-                <TableCell className="text-white/40 text-xs hidden md:table-cell">
+                <TableCell className="text-slate-500 text-xs hidden md:table-cell font-medium">
                   {formatDate(news.tanggal_selesai)}
                 </TableCell>
                 <TableCell>
@@ -156,8 +165,8 @@ export function AdminNewsPage() {
                     variant="outline"
                     className={
                       news.is_active
-                        ? 'text-[10px] border-teal-500/50 text-teal-400 bg-teal-500/10'
-                        : 'text-[10px] border-red-500/50 text-red-400 bg-red-500/10'
+                        ? 'text-[10px] border-teal-200 text-teal-700 bg-teal-50 font-semibold'
+                        : 'text-[10px] border-red-200 text-red-600 bg-red-50 font-semibold'
                     }
                   >
                     {news.is_active ? 'Aktif' : 'Nonaktif'}
@@ -166,9 +175,10 @@ export function AdminNewsPage() {
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="icon"
-                      className="h-8 w-8 text-white/40 hover:text-primary-400 hover:bg-primary-500/10"
+                      title="Pratinjau Berita"
+                      className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-primary-600 hover:bg-primary-50 shadow-2xs"
                       onClick={() => {
                         setPreviewNews(news)
                         setPreviewDialogOpen(true)
@@ -177,17 +187,19 @@ export function AdminNewsPage() {
                       <Eye className="h-3.5 w-3.5" />
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="icon"
-                      className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/10"
+                      title="Edit Berita"
+                      className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-primary-600 hover:bg-primary-50 shadow-2xs"
                       onClick={() => openEdit(news)}
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="icon"
-                      className="h-8 w-8 text-white/40 hover:text-red-400 hover:bg-red-500/10"
+                      title="Hapus Berita"
+                      className="h-8 w-8 bg-white border-slate-200 text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-200 shadow-2xs"
                       onClick={() => {
                         setDeletingNews(news)
                         setDeleteDialogOpen(true)
@@ -201,108 +213,96 @@ export function AdminNewsPage() {
             ))}
           </TableBody>
         </Table>
-      </GlassCard>
+      </div>
 
-      {/* Create/Edit Dialog */}
+      {/* Create/Edit Dialog (Pure shadcn/ui components) */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="glass-strong border-white/10 bg-primary-950/95 backdrop-blur-2xl max-w-lg">
+        <DialogContent className="sm:max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white text-lg">
-              {editingNews ? 'Edit Berita' : 'Tambah Berita Baru'}
+            <DialogTitle className="text-lg font-bold text-slate-900">
+              {editingNews ? 'Edit Berita & Pengumuman' : 'Tambah Berita Baru'}
             </DialogTitle>
+            <DialogDescription className="text-xs text-slate-500">
+              Kelola informasi pengumuman pop-up untuk seluruh ASN Jawa Barat.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-5 py-4">
-            <div className="space-y-2">
-              <Label className="text-white/70 text-sm">Judul</Label>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-slate-700 text-xs font-semibold">Judul Pengumuman</Label>
               <Input
                 value={form.judul}
                 onChange={e => setForm(f => ({ ...f, judul: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white h-11 focus:border-primary-500/50 focus:ring-primary-500/20"
-                placeholder="Judul berita..."
+                placeholder="Contoh: Pemeliharaan Server Portal Smart Jabar"
               />
             </div>
-            <div className="space-y-2">
-              <Label className="text-white/70 text-sm">Isi Teks</Label>
+            <div className="space-y-1.5">
+              <Label className="text-slate-700 text-xs font-semibold">Isi Teks Pengumuman</Label>
               <Textarea
                 value={form.isi_teks}
                 onChange={e => setForm(f => ({ ...f, isi_teks: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white min-h-[120px] focus:border-primary-500/50 focus:ring-primary-500/20 resize-none"
-                placeholder="Isi berita..."
+                className="min-h-[110px] resize-none"
+                placeholder="Tuliskan isi detail berita atau pengumuman..."
               />
             </div>
-            <div className="space-y-2">
-              <Label className="text-white/70 text-sm">URL Gambar (opsional)</Label>
+            <div className="space-y-1.5">
+              <Label className="text-slate-700 text-xs font-semibold">URL Banner / Gambar (opsional)</Label>
               <Input
                 value={form.gambar_url}
                 onChange={e => setForm(f => ({ ...f, gambar_url: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white h-11 focus:border-primary-500/50 focus:ring-primary-500/20"
                 placeholder="https://..."
               />
             </div>
 
-            {/* Date range — styled with icon and label */}
-            <div className="space-y-3">
-              <Label className="text-white/70 text-sm flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
+            {/* Date range with shadcn Label & Input */}
+            <div className="space-y-2">
+              <Label className="text-slate-700 text-xs font-semibold flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5 text-slate-500" />
                 Periode Tayang
               </Label>
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <span className="text-white/40 text-xs">Mulai</span>
+                <div className="space-y-1">
+                  <span className="text-slate-400 text-[11px]">Tanggal Mulai</span>
                   <Input
                     type="date"
                     value={form.tanggal_mulai}
                     onChange={e => setForm(f => ({ ...f, tanggal_mulai: e.target.value }))}
-                    className="bg-white/5 border-white/10 text-white h-11 focus:border-primary-500/50 focus:ring-primary-500/20 [color-scheme:dark]"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <span className="text-white/40 text-xs">Selesai</span>
+                <div className="space-y-1">
+                  <span className="text-slate-400 text-[11px]">Tanggal Selesai</span>
                   <Input
                     type="date"
                     value={form.tanggal_selesai}
                     onChange={e => setForm(f => ({ ...f, tanggal_selesai: e.target.value }))}
-                    className="bg-white/5 border-white/10 text-white h-11 focus:border-primary-500/50 focus:ring-primary-500/20 [color-scheme:dark]"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Toggle aktif — styled custom */}
-            <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-white/3 border border-white/5">
-              <div>
-                <p className="text-white text-sm font-medium">Berita Aktif</p>
-                <p className="text-white/30 text-xs mt-0.5">Tampilkan berita sebagai pop-up di portal</p>
+            {/* Toggle Aktif with shadcn Switch */}
+            <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-200/80">
+              <div className="space-y-0.5">
+                <Label className="text-slate-800 text-xs font-semibold">Berita Aktif</Label>
+                <p className="text-slate-400 text-[11px]">Tampilkan sebagai pop-up otomatis di beranda portal</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setForm(f => ({ ...f, is_active: !f.is_active }))}
-                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-200 ${
-                  form.is_active
-                    ? 'bg-gradient-to-r from-primary-500 to-teal-500 shadow-lg shadow-primary-500/20'
-                    : 'bg-white/10'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
-                    form.is_active ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
+              <Switch
+                checked={form.is_active}
+                onCheckedChange={(checked) => setForm(f => ({ ...f, is_active: checked }))}
+              />
             </div>
           </div>
           <DialogFooter className="gap-2">
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => setDialogOpen(false)}
-              className="text-white/50 hover:text-white hover:bg-white/10"
+              className="border-slate-200 text-slate-700 hover:bg-slate-100"
             >
               Batal
             </Button>
             <Button
               onClick={handleSave}
-              disabled={!form.judul || !form.isi_teks}
-              className="bg-gradient-to-r from-primary-500 to-teal-600 hover:from-primary-400 hover:to-teal-500 text-white px-6"
+              disabled={!form.judul.trim() || !form.isi_teks.trim()}
+              className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
             >
               {editingNews ? 'Simpan Perubahan' : 'Tambah Berita'}
             </Button>
@@ -310,16 +310,28 @@ export function AdminNewsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Preview Dialog */}
+      {/* Preview Dialog (Pure shadcn/ui) */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <DialogContent className="glass-strong border-white/10 bg-primary-950/95 backdrop-blur-2xl max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-white">Pratinjau Berita</DialogTitle>
+        <DialogContent className="sm:max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl p-0 overflow-hidden">
+          <DialogHeader className="p-5 pb-0">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary-50 border border-primary-100 flex items-center justify-center">
+                <Newspaper className="h-4 w-4 text-primary-600" />
+              </div>
+              <div>
+                <DialogTitle className="text-base font-bold text-slate-900">
+                  Pratinjau Berita & Pengumuman
+                </DialogTitle>
+                <DialogDescription className="text-xs text-slate-500">
+                  Tampilan pop-up yang akan dilihat oleh pengguna ASN.
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
           {previewNews && (
-            <div className="py-4">
+            <div className="p-5 pt-3 space-y-4">
               {previewNews.gambar_url && (
-                <div className="w-full h-48 rounded-xl overflow-hidden mb-4 bg-white/5">
+                <div className="w-full h-48 rounded-lg overflow-hidden bg-slate-100 border border-slate-200/80">
                   <img
                     src={previewNews.gambar_url}
                     alt={previewNews.judul}
@@ -327,37 +339,75 @@ export function AdminNewsPage() {
                   />
                 </div>
               )}
-              <h3 className="text-white font-semibold text-lg mb-3">{previewNews.judul}</h3>
-              <p className="text-white/50 text-sm leading-relaxed whitespace-pre-line">
-                {previewNews.isi_teks}
-              </p>
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Badge
+                    variant="outline"
+                    className={
+                      previewNews.is_active
+                        ? 'text-[10px] border-teal-200 text-teal-700 bg-teal-50'
+                        : 'text-[10px] border-red-200 text-red-600 bg-red-50'
+                    }
+                  >
+                    {previewNews.is_active ? 'Sedang Tayang' : 'Nonaktif'}
+                  </Badge>
+                  {previewNews.tanggal_mulai && (
+                    <span className="text-slate-400 text-xs">
+                      {formatDate(previewNews.tanggal_mulai)}
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-slate-900 font-bold text-base mb-2">
+                  {previewNews.judul}
+                </h3>
+                <p className="text-slate-600 text-xs leading-relaxed whitespace-pre-line bg-slate-50/70 p-3.5 rounded-lg border border-slate-100">
+                  {previewNews.isi_teks}
+                </p>
+              </div>
             </div>
           )}
+          <DialogFooter className="p-4 pt-0 border-t border-slate-100 bg-slate-50/50">
+            <Button
+              variant="outline"
+              onClick={() => setPreviewDialogOpen(false)}
+              className="border-slate-200 text-slate-700 hover:bg-slate-100 text-xs h-9"
+            >
+              Tutup Pratinjau
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Dialog */}
+      {/* Delete Dialog (Pure shadcn/ui) */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="glass-strong border-white/10 bg-primary-950/95 backdrop-blur-2xl max-w-sm">
+        <DialogContent className="sm:max-w-md bg-white border-slate-200 text-slate-900 shadow-xl">
           <DialogHeader>
-            <DialogTitle className="text-white">Hapus Berita?</DialogTitle>
+            <div className="flex items-center gap-2.5 text-red-600">
+              <div className="p-2 rounded-lg bg-red-50 border border-red-100">
+                <Trash2 className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-lg font-bold text-slate-900">
+                Hapus Berita?
+              </DialogTitle>
+            </div>
+            <DialogDescription className="text-xs text-slate-500 pt-2 leading-relaxed">
+              Pengumuman <strong className="text-slate-800">{deletingNews?.judul}</strong> akan dihapus secara permanen.
+            </DialogDescription>
           </DialogHeader>
-          <p className="text-white/50 text-sm">
-            Berita <strong className="text-white">{deletingNews?.judul}</strong> akan dihapus secara permanen.
-          </p>
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-2 pt-2">
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
-              className="text-white/50 hover:text-white hover:bg-white/10"
+              className="border-slate-200 text-slate-700 hover:bg-slate-100"
             >
               Batal
             </Button>
             <Button
+              variant="destructive"
               onClick={handleDelete}
-              className="bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30"
+              className="bg-red-600 hover:bg-red-700 text-white font-medium"
             >
-              Hapus
+              Hapus Berita
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -365,3 +415,4 @@ export function AdminNewsPage() {
     </div>
   )
 }
+

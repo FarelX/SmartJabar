@@ -9,6 +9,7 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { AdminServicesPage } from '@/pages/admin/AdminServicesPage'
 import { AdminNewsPage } from '@/pages/admin/AdminNewsPage'
 import { AdminCategoriesPage } from '@/pages/admin/AdminCategoriesPage'
+import { Toaster } from '@/components/ui/sonner'
 
 function App() {
   return (
@@ -57,9 +58,11 @@ function App() {
             />
           </Route>
         </Routes>
+        <Toaster position="top-right" richColors />
       </AuthProvider>
     </BrowserRouter>
   )
 }
 
 export default App
+

@@ -6,66 +6,35 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 210 40% 98%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 217 91% 60%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 43 96% 56%;
+    --accent: 38 92% 50%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 217 91% 60%;
+    --ring: 221.2 83.2% 53.3%;
     --radius: 0.75rem;
 
-    /* Glassmorphism tokens - light mode */
-    --glass-bg: rgba(255, 255, 255, 0.6);
-    --glass-bg-hover: rgba(255, 255, 255, 0.75);
-    --glass-border: rgba(255, 255, 255, 0.25);
-    --glass-border-hover: rgba(255, 255, 255, 0.4);
-    --glass-shadow: 0 0 20px rgba(59, 130, 246, 0.08);
-    --glass-shadow-hover: 0 0 30px rgba(59, 130, 246, 0.15), 0 8px 32px rgba(0, 0, 0, 0.08);
-    --glass-blur: 16px;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 43 96% 56%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 217 91% 60%;
-
-    /* Glassmorphism tokens - dark mode */
-    --glass-bg: rgba(255, 255, 255, 0.06);
-    --glass-bg-hover: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.12);
-    --glass-border-hover: rgba(255, 255, 255, 0.2);
-    --glass-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
-    --glass-shadow-hover: 0 0 30px rgba(59, 130, 246, 0.2), 0 8px 32px rgba(0, 0, 0, 0.12);
-    --glass-blur: 16px;
+    /* Glassmorphism tokens - light theme */
+    --glass-bg: rgba(255, 255, 255, 0.88);
+    --glass-bg-hover: rgba(255, 255, 255, 0.98);
+    --glass-border: rgba(226, 232, 240, 0.85);
+    --glass-border-hover: rgba(148, 163, 184, 0.45);
+    --glass-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+    --glass-shadow-hover: 0 10px 25px -5px rgba(37, 99, 235, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+    --glass-blur: 12px;
   }
 }
 
@@ -75,7 +44,7 @@
   }
 
   body {
-    @apply bg-primary-950 text-foreground font-sans antialiased;
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
     min-height: 100vh;
   }
 }
@@ -90,7 +59,7 @@
     -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
-    transition: all 0.3s ease;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .glass:hover {
@@ -108,11 +77,11 @@
   }
 
   .glass-strong {
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.12), inset 0 0 30px rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
   }
 
   .glass-card {
@@ -125,7 +94,7 @@
   }
 
   .glass-card-hover:hover {
-    transform: translateY(-4px) scale(1.02);
+    transform: translateY(-3px);
   }
 }
 
@@ -133,7 +102,7 @@
    Static Background (Portal pages)
    ================================ */
 .bg-portal {
-  background: linear-gradient(160deg, #0a1628 0%, #111d33 40%, #0e2a2e 70%, #0a1628 100%);
+  background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 40%, #f0fdfa 80%, #f8fafc 100%);
 }
 
 .bg-portal::before {
@@ -143,17 +112,18 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(ellipse at 15% 30%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
-              radial-gradient(ellipse at 85% 70%, rgba(13, 148, 136, 0.04) 0%, transparent 50%);
+  background: radial-gradient(ellipse at 15% 25%, rgba(37, 99, 235, 0.05) 0%, transparent 45%),
+              radial-gradient(ellipse at 85% 70%, rgba(13, 148, 136, 0.05) 0%, transparent 45%),
+              radial-gradient(ellipse at 50% 10%, rgba(245, 158, 11, 0.03) 0%, transparent 40%);
   pointer-events: none;
   z-index: 0;
 }
 
 /* ================================
-   Animated Background (Login page only)
+   Animated Background (Login page)
    ================================ */
 .bg-mesh {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3048 25%, #0f172a 50%, #134e4a 75%, #0f172a 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 30%, #f0fdfa 60%, #f8fafc 100%);
   background-size: 400% 400%;
   animation: gradient-shift 15s ease infinite;
 }
@@ -165,9 +135,9 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+  background: radial-gradient(ellipse at 20% 40%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
               radial-gradient(ellipse at 80% 20%, rgba(13, 148, 136, 0.08) 0%, transparent 50%),
-              radial-gradient(ellipse at 50% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+              radial-gradient(ellipse at 50% 85%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
 }
@@ -191,47 +161,47 @@
    Custom Form Styling (Admin Modals)
    ================================ */
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.7);
   cursor: pointer;
+  opacity: 0.6;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  filter: invert(0.9);
+  opacity: 1;
 }
 
 /* ================================
    Scrollbar Styling
    ================================ */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(148, 163, 184, 0.4);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(100, 116, 139, 0.6);
 }
 
 /* ================================
    Text Gradient Utility
    ================================ */
 .text-gradient {
-  background: linear-gradient(135deg, #3b82f6, #0d9488);
+  background: linear-gradient(135deg, #1d4ed8 0%, #0d9488 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-warm {
-  background: linear-gradient(135deg, #f59e0b, #3b82f6);
+  background: linear-gradient(135deg, #d97706 0%, #2563eb 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

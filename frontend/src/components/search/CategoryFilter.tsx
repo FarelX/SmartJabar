@@ -21,10 +21,10 @@ export function CategoryFilter({ categories, selected, onChange }: CategoryFilte
       <button
         onClick={() => onChange([])}
         className={cn(
-          'px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
+          'px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer',
           selected.length === 0
-            ? 'bg-gradient-to-r from-primary-500 to-teal-600 text-white shadow-lg shadow-primary-500/20'
-            : 'glass-static text-white/60 hover:text-white hover:bg-white/10'
+            ? 'bg-gradient-to-r from-primary-600 to-teal-600 text-white shadow-sm shadow-primary-500/25 font-semibold'
+            : 'bg-white/90 border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300 shadow-2xs'
         )}
       >
         Semua
@@ -34,10 +34,10 @@ export function CategoryFilter({ categories, selected, onChange }: CategoryFilte
           key={cat.id}
           onClick={() => toggleCategory(cat.id)}
           className={cn(
-            'px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
+            'px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer',
             selected.includes(cat.id)
-              ? 'bg-gradient-to-r from-primary-500 to-teal-600 text-white shadow-lg shadow-primary-500/20'
-              : 'glass-static text-white/60 hover:text-white hover:bg-white/10'
+              ? 'bg-gradient-to-r from-primary-600 to-teal-600 text-white shadow-sm shadow-primary-500/25 font-semibold'
+              : 'bg-white/90 border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300 shadow-2xs'
           )}
         >
           {cat.nama}
@@ -46,3 +46,4 @@ export function CategoryFilter({ categories, selected, onChange }: CategoryFilte
     </div>
   )
 }
+
