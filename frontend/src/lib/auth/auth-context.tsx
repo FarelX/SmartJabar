@@ -29,8 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = user?.role === 'admin'
 
   const login = useCallback(() => {
-    // Nanti: redirect ke SSO via buildSSOLoginURL()
-    // Mock: langsung set user
+    // Reset status pop-up berita agar muncul saat login baru
+    sessionStorage.removeItem('news_popup_shown')
     setIsLoading(true)
     setTimeout(() => {
       setUser(mockAdminUser)
@@ -39,7 +39,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(() => {
-    // Nanti: panggil backend logout + redirect ke SSO logout
+    // Reset status pop-up berita saat logout
+    sessionStorage.removeItem('news_popup_shown')
     setUser(null)
   }, [])
 

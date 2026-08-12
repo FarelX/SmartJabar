@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/lib/auth/auth-context'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -9,12 +10,46 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
-import { LogOut, Settings, Shield, User, ChevronDown } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { LogOut, Settings, Shield, ChevronDown } from 'lucide-react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { motion } from 'framer-motion'
+
+const NAV_ITEMS = [
+  { path: '/', label: 'Dashboard' },
+  { path: '/admin/layanan', label: 'Kelola Layanan' },
+  { path: '/admin/berita', label: 'Kelola Berita' },
+  { path: '/admin/kategori', label: 'Kategori' },
+]
 
 export function Header() {
   const { user, isAdmin, logout, toggleMockRole } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const navRef = useRef<HTMLElement>(null)
+  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([])
+  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, opacity: 0 })
+
+  const updatePillPosition = () => {
+    const activeIdx = NAV_ITEMS.findIndex(item => item.path === location.pathname)
+    if (activeIdx !== -1 && itemRefs.current[activeIdx] && navRef.current) {
+      const navRect = navRef.current.getBoundingClientRect()
+      const itemRect = itemRefs.current[activeIdx]!.getBoundingClientRect()
+      setPillStyle({
+        left: itemRect.left - navRect.left,
+        width: itemRect.width,
+        opacity: 1,
+      })
+    } else {
+      setPillStyle(prev => ({ ...prev, opacity: 0 }))
+    }
+  }
+
+  useEffect(() => {
+    updatePillPosition()
+    window.addEventListener('resize', updatePillPosition)
+    return () => window.removeEventListener('resize', updatePillPosition)
+  }, [location.pathname])
 
   if (!user) return null
 
@@ -27,119 +62,124 @@ export function Header() {
     .toUpperCase()
 
   return (
-    <header className="sticky top-0 z-50 glass-static border-b border-white/10">
+    <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand */}
-          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <Link to="/" className="flex items-center gap-3 hover:opacity-85 transition-opacity">
             <img
               src="/logo-smart-jabar.webp"
               alt="SMART JABAR"
-              className="h-9 w-9 rounded-full"
+              className="h-9 w-9 rounded-xl shadow-2xs"
             />
             <div className="hidden sm:block">
-              <h1 className="text-white font-bold text-lg leading-tight">
-                SMART <span className="text-gradient">JABAR</span>
+              <h1 className="text-slate-900 font-bold text-lg leading-tight">
+                SMART <span className="text-gradient font-extrabold">JABAR</span>
               </h1>
-              <p className="text-white/40 text-[10px] leading-tight">
+              <p className="text-slate-400 text-[10px] leading-tight font-medium">
                 Portal Administrasi Pemerintahan
               </p>
             </div>
           </Link>
 
-          {/* Admin nav links */}
+          {/* Admin nav links with horizontally-locked sliding pill */}
           {isAdmin && (
-            <nav className="hidden md:flex items-center gap-1">
-              <Link
-                to="/"
-                className="px-3 py-2 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/5 transition-all"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/admin/layanan"
-                className="px-3 py-2 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/5 transition-all"
-              >
-                Kelola Layanan
-              </Link>
-              <Link
-                to="/admin/berita"
-                className="px-3 py-2 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/5 transition-all"
-              >
-                Kelola Berita
-              </Link>
-              <Link
-                to="/admin/kategori"
-                className="px-3 py-2 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/5 transition-all"
-              >
-                Kategori
-              </Link>
+            <nav
+              ref={navRef}
+              className="hidden md:flex items-center gap-1 bg-slate-100/60 p-1 rounded-xl border border-slate-200/60 backdrop-blur-xs relative"
+            >
+              {/* Sliding active pill indicator (pure horizontal translation, 0 vertical shift) */}
+              <motion.div
+                className="absolute top-1 bottom-1 bg-gradient-to-r from-primary-600 to-teal-600 rounded-lg shadow-sm shadow-primary-500/25 pointer-events-none"
+                animate={{
+                  left: pillStyle.left,
+                  width: pillStyle.width,
+                  opacity: pillStyle.opacity,
+                }}
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+
+              {NAV_ITEMS.map((item, index) => {
+                const active = location.pathname === item.path
+                return (
+                  <Link
+                    key={item.path}
+                    ref={el => { itemRefs.current[index] = el }}
+                    to={item.path}
+                    className={`relative px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 z-10 select-none ${
+                      active ? 'text-white font-semibold' : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              })}
             </nav>
           )}
 
           {/* User Profile */}
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-3 glass-static rounded-full pl-1 pr-3 py-1 hover:bg-white/10 transition-all">
-                <Avatar className="h-8 w-8 border border-white/20">
+              <button className="flex items-center gap-2.5 bg-white border border-slate-200/90 shadow-2xs rounded-full pl-1.5 pr-3.5 py-1 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer">
+                <Avatar className="h-8 w-8 border border-slate-200">
                   <AvatarImage src={user.foto_url || undefined} alt={user.nama} />
                   <AvatarFallback className="bg-primary-600 text-white text-xs font-semibold">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden sm:block text-left">
-                  <p className="text-white text-sm font-medium leading-tight truncate max-w-[150px]">
+                  <p className="text-slate-800 text-xs font-semibold leading-tight truncate max-w-[150px]">
                     {user.nama.split(',')[0]}
                   </p>
-                  <p className="text-white/50 text-[10px] leading-tight truncate max-w-[150px]">
+                  <p className="text-slate-400 text-[10px] leading-tight truncate max-w-[150px]">
                     {user.opd}
                   </p>
                 </div>
-                <ChevronDown className="h-3 w-3 text-white/50" />
+                <ChevronDown className="h-3 w-3 text-slate-400" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64 glass-strong border-white/10 bg-primary-950/95 backdrop-blur-xl">
+            <DropdownMenuContent align="end" className="w-64 bg-white border-slate-200 shadow-xl text-slate-800">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-semibold text-white">{user.nama}</p>
-                  <p className="text-xs text-white/50">{user.nip}</p>
-                  <p className="text-xs text-white/50">{user.jabatan}</p>
-                  <p className="text-xs text-white/50">{user.opd}</p>
-                  <Badge variant="outline" className="w-fit mt-1 text-[10px] border-primary-500/50 text-primary-400">
+                  <p className="text-sm font-semibold text-slate-900">{user.nama}</p>
+                  <p className="text-xs text-slate-500">NIP: {user.nip}</p>
+                  <p className="text-xs text-slate-500">{user.jabatan}</p>
+                  <p className="text-xs text-slate-500 font-medium">{user.opd}</p>
+                  <Badge variant="outline" className="w-fit mt-1 text-[10px] border-primary-200 text-primary-700 bg-primary-50 font-semibold">
                     {user.role === 'admin' ? 'Administrator' : 'ASN'}
                   </Badge>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-white/10" />
+              <DropdownMenuSeparator className="bg-slate-100" />
               {isAdmin && (
                 <>
                   <DropdownMenuItem
-                    className="text-white/70 hover:text-white focus:text-white focus:bg-white/10 cursor-pointer md:hidden"
+                    className="text-slate-700 hover:text-slate-900 hover:bg-slate-50 cursor-pointer md:hidden"
                     onClick={() => navigate('/admin/layanan')}
                   >
                     <Settings className="mr-2 h-4 w-4" />
                     Kelola Layanan
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-white/10 md:hidden" />
+                  <DropdownMenuSeparator className="bg-slate-100 md:hidden" />
                 </>
               )}
-              {/* Mock role toggle — hapus di production */}
+              {/* Mock role toggle */}
               <DropdownMenuItem
-                className="text-white/70 hover:text-white focus:text-white focus:bg-white/10 cursor-pointer"
+                className="text-slate-700 hover:text-slate-900 hover:bg-slate-50 cursor-pointer"
                 onClick={toggleMockRole}
               >
-                <Shield className="mr-2 h-4 w-4" />
+                <Shield className="mr-2 h-4 w-4 text-primary-600" />
                 <span>Switch Role (Mock: {user.role})</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-white/10" />
+              <DropdownMenuSeparator className="bg-slate-100" />
               <DropdownMenuItem
-                className="text-red-400 hover:text-red-300 focus:text-red-300 focus:bg-red-500/10 cursor-pointer"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer font-medium"
                 onClick={() => {
                   logout()
                   navigate('/login')
                 }}
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut className="mr-2 h-4 w-4 text-red-500" />
                 Keluar
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -149,3 +189,4 @@ export function Header() {
     </header>
   )
 }
+

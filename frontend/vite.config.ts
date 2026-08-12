@@ -10,4 +10,28 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    allowedHosts: true,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('antd') || id.includes('@ant-design') || id.includes('dayjs') || id.includes('rc-')) {
+              return 'vendor-antd'
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-motion'
+            }
+            if (id.includes('@radix-ui') || id.includes('lucide-react')) {
+              return 'vendor-ui'
+            }
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
 })
+
