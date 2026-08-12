@@ -50,7 +50,11 @@ export function LoginPage() {
           </div>
 
           {/* Welcome heading */}
-          <div className="mb-6">
+         
+
+          {/* SSO Action Box */}
+          <GlassCard strong className="p-6 sm:p-7 mb-6">
+             <div className="mb-6">
             <h2 className="text-white text-xl font-semibold mb-2">
               Selamat Datang
             </h2>
@@ -58,9 +62,6 @@ export function LoginPage() {
               Masuk menggunakan akun SSO Jawa Barat untuk mengakses seluruh layanan administrasi pemerintahan.
             </p>
           </div>
-
-          {/* SSO Action Box */}
-          <GlassCard strong className="p-6 sm:p-7 mb-6">
             <Button
               onClick={handleSSOLogin}
               className="w-full h-12 bg-gradient-to-r from-primary-500 to-teal-600 hover:from-primary-400 hover:to-teal-500 text-white font-semibold text-sm sm:text-base rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all duration-300 group"
