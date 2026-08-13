@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useAuth } from '@/lib/auth/auth-context'
+import { useFavorites } from '@/lib/hooks/useFavorites'
 import { SearchBar } from '@/components/search/SearchBar'
 import { CategoryFilter } from '@/components/search/CategoryFilter'
 import { QuickAccessCard } from '@/components/services/QuickAccessCard'
@@ -30,7 +31,7 @@ import {
 import { mockServices, getTopServices } from '@/lib/mock/services'
 import { mockCategories } from '@/lib/mock/categories'
 import { mockNews, getActiveNews } from '@/lib/mock/news'
-import { TrendingUp, LayoutGrid, Layers, Trash2 } from 'lucide-react'
+import { TrendingUp, LayoutGrid, Layers, Trash2, Star } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Service, ServiceFormData } from '@/types'
 
@@ -45,6 +46,7 @@ const emptyForm: ServiceFormData = {
 
 export function DashboardPage() {
   const { user } = useAuth()
+  const { favorites, isFavorite, toggleFavorite } = useFavorites()
   const [services, setServices] = useState<Service[]>(mockServices)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
@@ -61,7 +63,7 @@ export function DashboardPage() {
   // Active news for popup
   const activeNews = useMemo(() => getActiveNews(mockNews), [])
 
-  // Filtered services
+  // Filtered services — Layanan favorit disematkan di paling atas daftar layanan
   const filteredServices = useMemo(() => {
     let result = services.filter(s => s.is_active)
 
@@ -80,8 +82,18 @@ export function DashboardPage() {
       result = result.filter(s => s.category_id === selectedCategory)
     }
 
-    return result
-  }, [services, searchQuery, selectedCategory])
+    // Sorting: Layanan favorit selalu diposisikan di paling atas
+    return [...result].sort((a, b) => {
+      const aFav = favorites.includes(a.id)
+      const bFav = favorites.includes(b.id)
+      if (aFav && !bFav) return -1
+      if (!aFav && bFav) return 1
+      if (aFav && bFav) {
+        return favorites.indexOf(a.id) - favorites.indexOf(b.id)
+      }
+      return 0
+    })
+  }, [services, searchQuery, selectedCategory, favorites])
 
   // Handle service click — log usage & open URL
   const handleServiceClick = (service: Service) => {
@@ -159,11 +171,11 @@ export function DashboardPage() {
         </div>
       </FadeInView>
 
-      {/* Quick Access — Top 3 */}
+      {/* Quick Access — Top 3 Layanan Terpopuler */}
       <section>
         <FadeInView direction="down">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-5 w-5 text-amber-500" />
+            <TrendingUp className="h-5 w-5 text-blue-500" />
             <h2 className="text-slate-900 font-bold text-lg">Layanan Terpopuler</h2>
           </div>
         </FadeInView>
@@ -181,6 +193,8 @@ export function DashboardPage() {
                 service={service}
                 rank={index + 1}
                 onServiceClick={handleServiceClick}
+                isFavorite={isFavorite(service.id)}
+                onToggleFavorite={toggleFavorite}
               />
             </FadeInView>
           ))}
@@ -189,9 +203,17 @@ export function DashboardPage() {
 
       {/* Search & Filter */}
       <FadeInView direction="down">
-        <div className="flex items-center gap-2 mb-4">
-          <LayoutGrid className="h-5 w-5 text-primary-600" />
-          <h2 className="text-slate-900 font-bold text-lg">Semua Layanan</h2>
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+          <div className="flex items-center gap-2">
+            <LayoutGrid className="h-5 w-5 text-primary-600" />
+            <h2 className="text-slate-900 font-bold text-lg">Semua Layanan</h2>
+          </div>
+          {favorites.length > 0 && (
+            <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-amber-50 text-amber-800 border border-amber-300/70 shadow-2xs flex items-center gap-1.5">
+              <Star className="h-3 w-3 fill-amber-400 text-amber-500" />
+              {favorites.length} Layanan Favorit Disematkan di Posisi Teratas
+            </span>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -229,6 +251,8 @@ export function DashboardPage() {
                   onServiceClick={handleServiceClick}
                   onEdit={handleOpenEdit}
                   onDelete={handleOpenDelete}
+                  isFavorite={isFavorite(service.id)}
+                  onToggleFavorite={toggleFavorite}
                 />
               </FadeInView>
             ))}
