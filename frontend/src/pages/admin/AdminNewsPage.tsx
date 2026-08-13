@@ -27,7 +27,7 @@ import dayjs from 'dayjs'
 import { toast } from 'sonner'
 import { FadeInView } from '@/components/motion'
 import { ImageUpload } from '@/components/shared/ImageUpload'
-import { mockNews } from '@/lib/mock/news'
+import { getStoredNews, saveStoredNews } from '@/lib/mock/news'
 import type { News, NewsFormData } from '@/types'
 
 const { RangePicker } = DatePicker
@@ -42,7 +42,7 @@ const emptyForm: NewsFormData = {
 }
 
 export function AdminNewsPage() {
-  const [newsList, setNewsList] = useState<News[]>(mockNews)
+  const [newsList, setNewsList] = useState<News[]>(() => getStoredNews())
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false)
@@ -72,20 +72,20 @@ export function AdminNewsPage() {
 
   const handleSave = () => {
     if (editingNews) {
-      setNewsList(prev =>
-        prev.map(n =>
-          n.id === editingNews.id
-            ? {
-                ...n,
-                ...form,
-                gambar_url: form.gambar_url || null,
-                tanggal_mulai: form.tanggal_mulai || null,
-                tanggal_selesai: form.tanggal_selesai || null,
-                updated_at: new Date().toISOString(),
-              }
-            : n
-        )
+      const updated = newsList.map(n =>
+        n.id === editingNews.id
+          ? {
+              ...n,
+              ...form,
+              gambar_url: form.gambar_url || null,
+              tanggal_mulai: form.tanggal_mulai || null,
+              tanggal_selesai: form.tanggal_selesai || null,
+              updated_at: new Date().toISOString(),
+            }
+          : n
       )
+      setNewsList(updated)
+      saveStoredNews(updated)
       toast.success('Berita berhasil diperbarui!')
     } else {
       const newNews: News = {
@@ -98,7 +98,9 @@ export function AdminNewsPage() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
-      setNewsList(prev => [...prev, newNews])
+      const updated = [...newsList, newNews]
+      setNewsList(updated)
+      saveStoredNews(updated)
       toast.success('Berita baru berhasil ditambahkan!')
     }
     setDialogOpen(false)
@@ -106,7 +108,9 @@ export function AdminNewsPage() {
 
   const handleDelete = () => {
     if (deletingNews) {
-      setNewsList(prev => prev.filter(n => n.id !== deletingNews.id))
+      const updated = newsList.filter(n => n.id !== deletingNews.id)
+      setNewsList(updated)
+      saveStoredNews(updated)
       setDeleteDialogOpen(false)
       toast.success(`Berita "${deletingNews.judul}" berhasil dihapus.`)
       setDeletingNews(null)

@@ -34,10 +34,10 @@ export function ServiceCard({
           size="icon"
           title={isFavorite ? 'Lepas dari Favorit' : 'Sematkan ke Favorit'}
           className={cn(
-            'absolute top-2.5 left-2.5 h-7 w-7 rounded-lg shadow-2xs backdrop-blur-md transition-all z-10',
+            'group/fav absolute top-2.5 left-2.5 h-7 w-7 rounded-lg shadow-2xs backdrop-blur-md transition-all z-10 bg-white/90 hover:bg-white border-white/80 hover:border-slate-200',
             isFavorite
-              ? 'bg-amber-50/95 border-amber-300 text-amber-500 opacity-100 hover:bg-amber-100 hover:scale-105'
-              : 'bg-white/90 border-white/80 text-slate-400 hover:text-amber-500 hover:border-amber-200 opacity-0 group-hover:opacity-100'
+              ? 'opacity-100 scale-100'
+              : 'opacity-90 sm:opacity-0 sm:group-hover:opacity-100'
           )}
           onClick={(e) => {
             e.stopPropagation()
@@ -46,8 +46,10 @@ export function ServiceCard({
         >
           <Star
             className={cn(
-              'h-3.5 w-3.5 transition-transform duration-200',
-              isFavorite ? 'fill-amber-400 text-amber-500' : 'hover:scale-110'
+              'h-3.5 w-3.5 transition-all duration-200',
+              isFavorite
+                ? 'fill-amber-400 text-amber-500 scale-105'
+                : 'text-slate-400 group-hover/fav:text-amber-400 group-hover/fav:fill-amber-400 group-hover/fav:scale-110'
             )}
           />
         </Button>

@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { LogOut, Settings, Shield, ChevronDown, Menu, X } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { LazyMotion, domAnimation, m } from 'framer-motion'
@@ -127,13 +128,16 @@ export function Header() {
               </LazyMotion>
             )}
 
-            {/* Right side: mobile menu button + user profile */}
-            <div className="flex items-center gap-2">
+            {/* Right side: Notification Bell + mobile menu button + user profile */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5">
+              {/* Notification Bell */}
+              <NotificationBell />
+
               {/* Mobile hamburger — visible only on < md when admin */}
               {isAdmin && (
                 <button
                   onClick={() => setMobileMenuOpen(v => !v)}
-                  className="md:hidden flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs"
+                  className="md:hidden flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full sm:rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs"
                   aria-label="Toggle navigation menu"
                 >
                   {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}

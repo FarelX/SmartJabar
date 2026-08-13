@@ -5,7 +5,9 @@ import { SearchBar } from '@/components/search/SearchBar'
 import { CategoryFilter } from '@/components/search/CategoryFilter'
 import { QuickAccessCard } from '@/components/services/QuickAccessCard'
 import { ServiceCard } from '@/components/services/ServiceCard'
+import { ServiceListItem } from '@/components/services/ServiceListItem'
 import { NewsPopup } from '@/components/news/NewsPopup'
+import { GreetingHeader } from '@/components/dashboard/GreetingHeader'
 import { FadeInView } from '@/components/motion'
 import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Button } from '@/components/ui/button'
@@ -30,8 +32,9 @@ import {
 } from '@/components/ui/select'
 import { mockServices, getTopServices } from '@/lib/mock/services'
 import { mockCategories } from '@/lib/mock/categories'
-import { mockNews, getActiveNews } from '@/lib/mock/news'
-import { TrendingUp, LayoutGrid, Layers, Trash2, Star } from 'lucide-react'
+import { getStoredNews, getActiveNews } from '@/lib/mock/news'
+import { TrendingUp, LayoutGrid, List, Layers, Trash2, Star } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { Service, ServiceFormData } from '@/types'
 
@@ -50,6 +53,21 @@ export function DashboardPage() {
   const [services, setServices] = useState<Service[]>(mockServices)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    try {
+      const saved = localStorage.getItem('smartjabar_services_view_mode')
+      return saved === 'list' ? 'list' : 'grid'
+    } catch {
+      return 'grid'
+    }
+  })
+
+  const handleSetViewMode = (mode: 'grid' | 'list') => {
+    setViewMode(mode)
+    try {
+      localStorage.setItem('smartjabar_services_view_mode', mode)
+    } catch {}
+  }
 
   // State dialog Edit / Delete
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -61,7 +79,7 @@ export function DashboardPage() {
   const topServices = useMemo(() => getTopServices(services, 3), [services])
 
   // Active news for popup
-  const activeNews = useMemo(() => getActiveNews(mockNews), [])
+  const activeNews = useMemo(() => getActiveNews(getStoredNews()), [])
 
   // Filtered services — Layanan favorit disematkan di paling atas daftar layanan
   const filteredServices = useMemo(() => {
@@ -157,19 +175,8 @@ export function DashboardPage() {
       {/* News Popup */}
       <NewsPopup news={activeNews} />
 
-      {/* Welcome Section */}
-      <FadeInView direction="down">
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">
-              Selamat datang, <span className="text-gradient">{user?.nama.split(',')[0]}</span>
-            </h1>
-            <p className="text-slate-500 text-sm">
-              {user?.jabatan} · {user?.opd}
-            </p>
-          </div>
-        </div>
-      </FadeInView>
+      {/* Greeting Header */}
+      <GreetingHeader user={user} />
 
       {/* Quick Access — Top 3 Layanan Terpopuler */}
       <section>
@@ -203,17 +210,49 @@ export function DashboardPage() {
 
       {/* Search & Filter */}
       <FadeInView direction="down">
-        <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
-          <div className="flex items-center gap-2">
-            <LayoutGrid className="h-5 w-5 text-primary-600" />
-            <h2 className="text-slate-900 font-bold text-lg">Semua Layanan</h2>
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="flex items-center gap-2">
+              <LayoutGrid className="h-5 w-5 text-primary-600" />
+              <h2 className="text-slate-900 font-bold text-lg">Semua Layanan</h2>
+            </div>
+            {favorites.length > 0 && (
+              <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-amber-50 text-amber-800 border border-amber-300/70 shadow-2xs flex items-center gap-1.5">
+                <Star className="h-3 w-3 fill-amber-400 text-amber-500" />
+                {favorites.length} Favorit di Atas
+              </span>
+            )}
           </div>
-          {favorites.length > 0 && (
-            <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-amber-50 text-amber-800 border border-amber-300/70 shadow-2xs flex items-center gap-1.5">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-500" />
-              {favorites.length} Layanan Favorit Disematkan di Posisi Teratas
-            </span>
-          )}
+
+          {/* Grid vs List View Toggle */}
+          <div className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 shadow-2xs">
+            <button
+              onClick={() => handleSetViewMode('grid')}
+              title="Tampilan Grid Kartu"
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
+                viewMode === 'grid'
+                  ? 'bg-white text-primary-700 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-800'
+              )}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              <span className="hidden xs:inline">Grid</span>
+            </button>
+            <button
+              onClick={() => handleSetViewMode('list')}
+              title="Tampilan Tabel/List Ramping"
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
+                viewMode === 'list'
+                  ? 'bg-white text-primary-700 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-800'
+              )}
+            >
+              <List className="h-3.5 w-3.5" />
+              <span className="hidden xs:inline">List</span>
+            </button>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -230,33 +269,58 @@ export function DashboardPage() {
         </div>
       </FadeInView>
 
-      {/* Services Grid — Scroll-Triggered Fade Up as Cards Enter Viewport */}
+      {/* Services Grid or List */}
       <section>
         {filteredServices.length > 0 ? (
-          <div
-            key={selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-          >
-            {filteredServices.map((service, index) => (
-              <FadeInView
-                key={service.id}
-                direction="up"
-                delay={(index % 4) * 0.06}
-                amount={0.12}
-                margin="0px 0px -40px 0px"
-                className="h-full"
-              >
-                <ServiceCard
-                  service={service}
-                  onServiceClick={handleServiceClick}
-                  onEdit={handleOpenEdit}
-                  onDelete={handleOpenDelete}
-                  isFavorite={isFavorite(service.id)}
-                  onToggleFavorite={toggleFavorite}
-                />
-              </FadeInView>
-            ))}
-          </div>
+          viewMode === 'grid' ? (
+            <div
+              key={`grid-${selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}`}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            >
+              {filteredServices.map((service, index) => (
+                <FadeInView
+                  key={service.id}
+                  direction="up"
+                  delay={(index % 4) * 0.05}
+                  amount={0.12}
+                  margin="0px 0px -40px 0px"
+                  className="h-full"
+                >
+                  <ServiceCard
+                    service={service}
+                    onServiceClick={handleServiceClick}
+                    onEdit={handleOpenEdit}
+                    onDelete={handleOpenDelete}
+                    isFavorite={isFavorite(service.id)}
+                    onToggleFavorite={toggleFavorite}
+                  />
+                </FadeInView>
+              ))}
+            </div>
+          ) : (
+            <div
+              key={`list-${selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}`}
+              className="space-y-2.5"
+            >
+              {filteredServices.map((service, index) => (
+                <FadeInView
+                  key={service.id}
+                  direction="up"
+                  delay={(index % 8) * 0.03}
+                  amount={0.1}
+                >
+                  <ServiceListItem
+                    service={service}
+                    onServiceClick={handleServiceClick}
+                    onEdit={handleOpenEdit}
+                    onDelete={handleOpenDelete}
+                    isFavorite={isFavorite(service.id)}
+                    onToggleFavorite={toggleFavorite}
+                  />
+                </FadeInView>
+              ))}
+            </div>
+          )
         ) : (
           <FadeInView className="glass-card p-12 text-center">
             <Layers className="h-10 w-10 text-slate-300 mx-auto mb-2" />
