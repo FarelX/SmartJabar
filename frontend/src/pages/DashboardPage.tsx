@@ -33,7 +33,7 @@ import {
 import { mockServices, getTopServices } from '@/lib/mock/services'
 import { mockCategories } from '@/lib/mock/categories'
 import { getStoredNews, getActiveNews } from '@/lib/mock/news'
-import { TrendingUp, LayoutGrid, List, Layers, Trash2, Star } from 'lucide-react'
+import { LayoutGrid, List, Layers, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { Service, ServiceFormData } from '@/types'
@@ -182,7 +182,6 @@ export function DashboardPage() {
       <section>
         <FadeInView direction="down">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-5 w-5 text-blue-500" />
             <h2 className="text-slate-900 font-bold text-lg">Layanan Terpopuler</h2>
           </div>
         </FadeInView>
@@ -213,15 +212,8 @@ export function DashboardPage() {
         <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
           <div className="flex items-center gap-2.5 flex-wrap">
             <div className="flex items-center gap-2">
-              <LayoutGrid className="h-5 w-5 text-primary-600" />
               <h2 className="text-slate-900 font-bold text-lg">Semua Layanan</h2>
             </div>
-            {favorites.length > 0 && (
-              <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-amber-50 text-amber-800 border border-amber-300/70 shadow-2xs flex items-center gap-1.5">
-                <Star className="h-3 w-3 fill-amber-400 text-amber-500" />
-                {favorites.length} Favorit di Atas
-              </span>
-            )}
           </div>
 
           {/* Grid vs List View Toggle */}

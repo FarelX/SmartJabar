@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ChevronLeft, ChevronRight, X, Newspaper, Calendar } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, Newspaper, Calendar, ExternalLink } from 'lucide-react'
 import type { News } from '@/types'
 
 interface NewsPopupProps {
@@ -75,12 +75,22 @@ export function NewsPopup({ news }: NewsPopupProps) {
         {/* Scrollable Content */}
         <div className="px-4 pb-2 sm:px-6 space-y-3 overflow-y-auto flex-1 min-h-0">
           {currentNews.gambar_url && (
-            <div className="w-full h-36 sm:h-48 rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 shrink-0">
+            <div className="group/img relative w-full rounded-2xl overflow-hidden bg-slate-950/5 border border-slate-200/90 flex items-center justify-center p-2 shrink-0 max-h-[280px] sm:max-h-[360px]">
               <img
                 src={currentNews.gambar_url}
                 alt={currentNews.judul}
-                className="w-full h-full object-cover"
+                className="max-h-[260px] sm:max-h-[340px] w-auto max-w-full object-contain rounded-xl drop-shadow-xs transition-transform duration-300"
               />
+              <a
+                href={currentNews.gambar_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Buka gambar ukuran penuh"
+                className="absolute top-2.5 right-2.5 opacity-0 group-hover/img:opacity-100 transition-all bg-white/90 hover:bg-white text-slate-700 hover:text-primary-600 px-2.5 py-1 rounded-lg text-[11px] font-semibold shadow-xs border border-slate-200/80 flex items-center gap-1 backdrop-blur-xs"
+              >
+                <span>Ukuran Penuh</span>
+                <ExternalLink className="h-3 w-3" />
+              </a>
             </div>
           )}
 

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '@/lib/auth/auth-context'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
@@ -13,7 +13,6 @@ const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
 const AdminServicesPage = lazy(() => import('@/pages/admin/AdminServicesPage').then(m => ({ default: m.AdminServicesPage })))
 const AdminNewsPage = lazy(() => import('@/pages/admin/AdminNewsPage').then(m => ({ default: m.AdminNewsPage })))
-const AdminCategoriesPage = lazy(() => import('@/pages/admin/AdminCategoriesPage').then(m => ({ default: m.AdminCategoriesPage })))
 
 /**
  * Thin Suspense wrapper for per-route granular loading.
@@ -85,13 +84,7 @@ function App() {
             />
             <Route
               path="/admin/kategori"
-              element={
-                <AdminRoute>
-                  <RouteSuspense>
-                    <AdminCategoriesPage />
-                  </RouteSuspense>
-                </AdminRoute>
-              }
+              element={<Navigate to="/admin/layanan?tab=kategori" replace />}
             />
           </Route>
         </Routes>

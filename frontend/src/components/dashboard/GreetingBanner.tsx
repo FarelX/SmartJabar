@@ -169,3 +169,4 @@ export function GreetingHeader({ user }: GreetingHeaderProps) {
 
 // Re-export as GreetingBanner for backwards compatibility
 export const GreetingBanner = GreetingHeader
+
