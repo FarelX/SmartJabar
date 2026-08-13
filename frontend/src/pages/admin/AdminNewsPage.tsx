@@ -21,13 +21,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Plus, Pencil, Trash2, Eye, Calendar, Newspaper } from 'lucide-react'
+import { Plus, Pencil, Trash2, Eye, Calendar, Newspaper, ExternalLink } from 'lucide-react'
 import { DatePicker, ConfigProvider } from 'antd'
 import dayjs from 'dayjs'
 import { toast } from 'sonner'
 import { FadeInView } from '@/components/motion'
 import { ImageUpload } from '@/components/shared/ImageUpload'
-import { mockNews } from '@/lib/mock/news'
+import { getStoredNews, saveStoredNews } from '@/lib/mock/news'
 import type { News, NewsFormData } from '@/types'
 
 const { RangePicker } = DatePicker
@@ -42,7 +42,7 @@ const emptyForm: NewsFormData = {
 }
 
 export function AdminNewsPage() {
-  const [newsList, setNewsList] = useState<News[]>(mockNews)
+  const [newsList, setNewsList] = useState<News[]>(() => getStoredNews())
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false)
@@ -72,20 +72,20 @@ export function AdminNewsPage() {
 
   const handleSave = () => {
     if (editingNews) {
-      setNewsList(prev =>
-        prev.map(n =>
-          n.id === editingNews.id
-            ? {
-                ...n,
-                ...form,
-                gambar_url: form.gambar_url || null,
-                tanggal_mulai: form.tanggal_mulai || null,
-                tanggal_selesai: form.tanggal_selesai || null,
-                updated_at: new Date().toISOString(),
-              }
-            : n
-        )
+      const updated = newsList.map(n =>
+        n.id === editingNews.id
+          ? {
+              ...n,
+              ...form,
+              gambar_url: form.gambar_url || null,
+              tanggal_mulai: form.tanggal_mulai || null,
+              tanggal_selesai: form.tanggal_selesai || null,
+              updated_at: new Date().toISOString(),
+            }
+          : n
       )
+      setNewsList(updated)
+      saveStoredNews(updated)
       toast.success('Berita berhasil diperbarui!')
     } else {
       const newNews: News = {
@@ -98,7 +98,9 @@ export function AdminNewsPage() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
-      setNewsList(prev => [...prev, newNews])
+      const updated = [...newsList, newNews]
+      setNewsList(updated)
+      saveStoredNews(updated)
       toast.success('Berita baru berhasil ditambahkan!')
     }
     setDialogOpen(false)
@@ -106,7 +108,9 @@ export function AdminNewsPage() {
 
   const handleDelete = () => {
     if (deletingNews) {
-      setNewsList(prev => prev.filter(n => n.id !== deletingNews.id))
+      const updated = newsList.filter(n => n.id !== deletingNews.id)
+      setNewsList(updated)
+      saveStoredNews(updated)
       setDeleteDialogOpen(false)
       toast.success(`Berita "${deletingNews.judul}" berhasil dihapus.`)
       setDeletingNews(null)
@@ -355,12 +359,22 @@ export function AdminNewsPage() {
           {previewNews && (
             <div className="p-4 sm:p-5 pt-3 space-y-4 overflow-y-auto flex-1 min-h-0">
               {previewNews.gambar_url && (
-                <div className="w-full h-36 sm:h-48 rounded-lg overflow-hidden bg-slate-100 border border-slate-200/80">
+                <div className="group/img relative w-full rounded-2xl overflow-hidden bg-slate-950/5 border border-slate-200/90 flex items-center justify-center p-2 shrink-0 max-h-[280px] sm:max-h-[360px]">
                   <img
                     src={previewNews.gambar_url}
                     alt={previewNews.judul}
-                    className="w-full h-full object-cover"
+                    className="max-h-[260px] sm:max-h-[340px] w-auto max-w-full object-contain rounded-xl drop-shadow-xs transition-transform duration-300"
                   />
+                  <a
+                    href={previewNews.gambar_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Buka gambar ukuran penuh"
+                    className="absolute top-2.5 right-2.5 opacity-0 group-hover/img:opacity-100 transition-all bg-white/90 hover:bg-white text-slate-700 hover:text-primary-600 px-2.5 py-1 rounded-lg text-[11px] font-semibold shadow-xs border border-slate-200/80 flex items-center gap-1 backdrop-blur-xs"
+                  >
+                    <span>Ukuran Penuh</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
                 </div>
               )}
               <div>

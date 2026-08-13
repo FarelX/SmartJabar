@@ -1,6 +1,8 @@
 import type { News } from '@/types'
 
-export const mockNews: News[] = [
+const STORAGE_KEY = 'smartjabar_mock_news'
+
+export const defaultMockNews: News[] = [
   {
     id: 1,
     judul: 'Pemutakhiran Data Kepegawaian 2026',
@@ -38,6 +40,28 @@ export const mockNews: News[] = [
     updated_at: '2026-08-10T08:00:00Z',
   },
 ]
+
+export function getStoredNews(): News[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch {}
+  return defaultMockNews
+}
+
+export function saveStoredNews(news: News[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(news))
+    window.dispatchEvent(new CustomEvent('smartjabar_news_updated'))
+  } catch (e) {
+    console.error('Failed to save news', e)
+  }
+}
+
+export const mockNews: News[] = getStoredNews()
 
 export function getActiveNews(news: News[]): News[] {
   const now = new Date()

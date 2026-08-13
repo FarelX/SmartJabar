@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth/auth-context'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { LogOut, Settings, Shield, ChevronDown, Menu, X } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { LazyMotion, domAnimation, m } from 'framer-motion'
@@ -18,7 +19,6 @@ const NAV_ITEMS = [
   { path: '/', label: 'Dashboard' },
   { path: '/admin/layanan', label: 'Kelola Layanan' },
   { path: '/admin/berita', label: 'Kelola Berita' },
-  { path: '/admin/kategori', label: 'Kategori' },
 ]
 
 export function Header() {
@@ -26,31 +26,6 @@ export function Header() {
   const navigate = useNavigate()
   const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  const navRef = useRef<HTMLElement>(null)
-  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([])
-  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, opacity: 0 })
-
-  const updatePillPosition = () => {
-    const activeIdx = NAV_ITEMS.findIndex(item => item.path === location.pathname)
-    if (activeIdx !== -1 && itemRefs.current[activeIdx] && navRef.current) {
-      const navRect = navRef.current.getBoundingClientRect()
-      const itemRect = itemRefs.current[activeIdx]!.getBoundingClientRect()
-      setPillStyle({
-        left: itemRect.left - navRect.left,
-        width: itemRect.width,
-        opacity: 1,
-      })
-    } else {
-      setPillStyle(prev => ({ ...prev, opacity: 0 }))
-    }
-  }
-
-  useEffect(() => {
-    updatePillPosition()
-    window.addEventListener('resize', updatePillPosition)
-    return () => window.removeEventListener('resize', updatePillPosition)
-  }, [location.pathname])
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -70,11 +45,11 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="flex items-center justify-between h-14 sm:h-16 gap-3">
 
             {/* Logo & Brand */}
-            <Link to="/" className="flex items-center gap-2.5 sm:gap-3 hover:opacity-85 transition-opacity shrink-0">
+            <Link to="/" className="flex items-center gap-2.5 sm:gap-3 hover:opacity-85 transition-opacity shrink-0 z-10">
               <img
                 src="/logo-smart-jabar.webp"
                 alt="SMART JABAR"
@@ -90,36 +65,30 @@ export function Header() {
               </div>
             </Link>
 
-            {/* Admin nav links — desktop only (md+) with horizontally-locked sliding pill */}
+            {/* Admin nav links — desktop only (md+) positioned at true geometric center */}
             {isAdmin && (
               <LazyMotion features={domAnimation} strict>
                 <nav
-                  ref={navRef}
-                  className="hidden md:flex items-center gap-1 bg-slate-100/60 p-1 rounded-xl border border-slate-200/60 backdrop-blur-xs relative"
+                  className="hidden md:flex items-center gap-1 bg-slate-100/70 p-1 rounded-xl border border-slate-200/60 backdrop-blur-xs absolute left-1/2 -translate-x-1/2 shadow-2xs z-10"
                 >
-                  {/* Sliding active pill indicator */}
-                  <m.div
-                    className="absolute top-1 bottom-1 bg-gradient-to-r from-primary-600 to-teal-600 rounded-lg shadow-sm shadow-primary-500/25 pointer-events-none"
-                    animate={{
-                      left: pillStyle.left,
-                      width: pillStyle.width,
-                      opacity: pillStyle.opacity,
-                    }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                  />
-
-                  {NAV_ITEMS.map((item, index) => {
+                  {NAV_ITEMS.map(item => {
                     const active = location.pathname === item.path
                     return (
                       <Link
                         key={item.path}
-                        ref={el => { itemRefs.current[index] = el }}
                         to={item.path}
-                        className={`relative px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 z-10 select-none ${
+                        className={`relative px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 select-none ${
                           active ? 'text-white font-semibold' : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
-                        {item.label}
+                        {active && (
+                          <m.div
+                            layoutId="activeAdminNavPill"
+                            className="absolute inset-0 bg-gradient-to-r from-primary-600 to-teal-600 rounded-lg shadow-sm shadow-primary-500/25 pointer-events-none"
+                            transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                          />
+                        )}
+                        <span className="relative z-10">{item.label}</span>
                       </Link>
                     )
                   })}
@@ -127,13 +96,16 @@ export function Header() {
               </LazyMotion>
             )}
 
-            {/* Right side: mobile menu button + user profile */}
-            <div className="flex items-center gap-2">
+            {/* Right side: Notification Bell + mobile menu button + user profile */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5 z-10">
+              {/* Notification Bell */}
+              <NotificationBell />
+
               {/* Mobile hamburger — visible only on < md when admin */}
               {isAdmin && (
                 <button
                   onClick={() => setMobileMenuOpen(v => !v)}
-                  className="md:hidden flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs"
+                  className="md:hidden flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full sm:rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs"
                   aria-label="Toggle navigation menu"
                 >
                   {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}

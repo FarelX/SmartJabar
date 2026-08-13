@@ -1,8 +1,9 @@
 import { GlassCard } from '@/components/shared/GlassCard'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ExternalLink, Pencil, Trash2, Layers } from 'lucide-react'
+import { ExternalLink, Pencil, Trash2, Layers, Star } from 'lucide-react'
 import { useAuth } from '@/lib/auth/auth-context'
+import { cn } from '@/lib/utils'
 import type { Service } from '@/types'
 
 interface ServiceCardProps {
@@ -10,13 +11,50 @@ interface ServiceCardProps {
   onServiceClick: (service: Service) => void
   onEdit?: (service: Service) => void
   onDelete?: (service: Service) => void
+  isFavorite?: boolean
+  onToggleFavorite?: (service: Service) => void
 }
 
-export function ServiceCard({ service, onServiceClick, onEdit, onDelete }: ServiceCardProps) {
+export function ServiceCard({
+  service,
+  onServiceClick,
+  onEdit,
+  onDelete,
+  isFavorite = false,
+  onToggleFavorite,
+}: ServiceCardProps) {
   const { isAdmin } = useAuth()
 
   return (
     <GlassCard hoverable className="h-full flex flex-col justify-between relative group overflow-hidden">
+      {/* Favorite Button (Star) */}
+      {onToggleFavorite && (
+        <Button
+          variant="outline"
+          size="icon"
+          title={isFavorite ? 'Lepas dari Favorit' : 'Sematkan ke Favorit'}
+          className={cn(
+            'group/fav absolute top-2.5 left-2.5 h-7 w-7 rounded-lg shadow-2xs backdrop-blur-md transition-all z-10 bg-white/90 hover:bg-white border-white/80 hover:border-slate-200',
+            isFavorite
+              ? 'opacity-100 scale-100'
+              : 'opacity-90 sm:opacity-0 sm:group-hover:opacity-100'
+          )}
+          onClick={(e) => {
+            e.stopPropagation()
+            onToggleFavorite(service)
+          }}
+        >
+          <Star
+            className={cn(
+              'h-3.5 w-3.5 transition-all duration-200',
+              isFavorite
+                ? 'fill-amber-400 text-amber-500 scale-105'
+                : 'text-slate-400 group-hover/fav:text-amber-400 group-hover/fav:fill-amber-400 group-hover/fav:scale-110'
+            )}
+          />
+        </Button>
+      )}
+
       {/* Admin controls */}
       {isAdmin && (
         <div className="absolute top-2.5 right-2.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -49,7 +87,13 @@ export function ServiceCard({ service, onServiceClick, onEdit, onDelete }: Servi
 
       {/* Status badge */}
       {!service.is_active && (
-        <Badge variant="outline" className="absolute top-2.5 left-2.5 text-[10px] border-red-300 text-red-600 bg-red-50/85 backdrop-blur-xs z-10 font-medium">
+        <Badge
+          variant="outline"
+          className={cn(
+            'absolute top-2.5 text-[10px] border-red-300 text-red-600 bg-red-50/85 backdrop-blur-xs z-10 font-medium',
+            onToggleFavorite ? 'left-11' : 'left-2.5'
+          )}
+        >
           Nonaktif
         </Badge>
       )}

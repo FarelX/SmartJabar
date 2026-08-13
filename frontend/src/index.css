@@ -150,42 +150,27 @@
 }
 
 /* ================================
-   Animated Background (Login page)
+   Static Background (Login & Auth pages)
    ================================ */
-.bg-mesh {
-  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 25%, #e0f2fe 50%, #ccfbf1 75%, #f8fafc 100%);
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
+.bg-mesh,
+.bg-auth-waves {
+  background: linear-gradient(145deg, #f8fafc 0%, #edf4fc 35%, #e0f2fe 70%, #f0fdfa 100%);
   min-height: 100vh;
 }
 
-.bg-mesh::before {
+.bg-mesh::before,
+.bg-auth-waves::before {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(ellipse at 20% 35%, rgba(37, 99, 235, 0.14) 0%, transparent 50%),
-              radial-gradient(ellipse at 80% 25%, rgba(13, 148, 136, 0.14) 0%, transparent 50%),
-              radial-gradient(ellipse at 50% 85%, rgba(245, 158, 11, 0.09) 0%, transparent 50%);
+  background: radial-gradient(ellipse at 15% 20%, rgba(37, 99, 235, 0.10) 0%, transparent 45%),
+              radial-gradient(ellipse at 85% 25%, rgba(13, 148, 136, 0.10) 0%, transparent 45%),
+              radial-gradient(ellipse at 50% 85%, rgba(245, 158, 11, 0.06) 0%, transparent 45%);
   pointer-events: none;
   z-index: 0;
-}
-
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  25% {
-    background-position: 100% 0%;
-  }
-  50% {
-    background-position: 100% 100%;
-  }
-  75% {
-    background-position: 0% 100%;
-  }
 }
 
 /* ================================

@@ -5,7 +5,7 @@ export const mockUsers: User[] = [
     id: 1,
     keycloak_id: 'kc-001-admin',
     nip: '198501012010011001',
-    nama: 'Dr. H. Ahmad Suryadi, M.Si.',
+    nama: 'Dr. H. Farel Rizky, S.Kom.',
     email: 'ahmad.suryadi@jabarprov.go.id',
     foto_url: null,
     jabatan: 'Kepala Bidang Teknologi Informasi',

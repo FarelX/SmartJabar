@@ -1,23 +1,61 @@
 import { GlassCard } from '@/components/shared/GlassCard'
-import { TrendingUp, Layers } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { TrendingUp, Layers, Star } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import type { Service } from '@/types'
 
 interface QuickAccessCardProps {
   service: Service
   rank: number
   onServiceClick: (service: Service) => void
+  isFavorite?: boolean
+  onToggleFavorite?: (service: Service) => void
 }
 
-export function QuickAccessCard({ service, rank, onServiceClick }: QuickAccessCardProps) {
+export function QuickAccessCard({
+  service,
+  rank,
+  onServiceClick,
+  isFavorite = false,
+  onToggleFavorite,
+}: QuickAccessCardProps) {
   return (
     <GlassCard
       hoverable
       className="h-full flex flex-col justify-between relative overflow-hidden group"
       onClick={() => onServiceClick(service)}
     >
+      {/* Favorite Button (Star) */}
+      {onToggleFavorite && (
+        <Button
+          variant="outline"
+          size="icon"
+          title={isFavorite ? 'Lepas dari Favorit' : 'Sematkan ke Favorit'}
+          className={cn(
+            'group/fav absolute top-3 left-3 h-7 w-7 rounded-lg shadow-2xs backdrop-blur-md transition-all z-20 bg-white/90 hover:bg-white border-white/80 hover:border-slate-200',
+            isFavorite
+              ? 'opacity-100 scale-100'
+              : 'opacity-90 sm:opacity-0 sm:group-hover:opacity-100'
+          )}
+          onClick={(e) => {
+            e.stopPropagation()
+            onToggleFavorite(service)
+          }}
+        >
+          <Star
+            className={cn(
+              'h-3.5 w-3.5 transition-all duration-200',
+              isFavorite
+                ? 'fill-amber-400 text-amber-500 scale-105'
+                : 'text-slate-400 group-hover/fav:text-amber-400 group-hover/fav:fill-amber-400 group-hover/fav:scale-110'
+            )}
+          />
+        </Button>
+      )}
+
       {/* Rank badge */}
-      <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/15 border border-amber-400/40 text-amber-800 text-[11px] font-bold z-10 shadow-2xs backdrop-blur-xs">
-        <TrendingUp className="h-3 w-3 text-amber-600" />
+      <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-xl bg-red-500/15 border border-red-400/40 text-red-800 text-[11px] font-bold z-10 shadow-2xs backdrop-blur-xs">
+        <TrendingUp className="h-3 w-3 text-red-600" />
         #{rank}
       </div>
 
