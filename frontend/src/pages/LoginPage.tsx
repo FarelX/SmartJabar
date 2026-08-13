@@ -1,13 +1,44 @@
+import { useState, useEffect, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth/auth-context'
-import { GlassCard } from '@/components/shared/GlassCard'
 import { Button } from '@/components/ui/button'
-import { Shield, ArrowRight, ExternalLink } from 'lucide-react'
-import { useEffect } from 'react'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  ArrowRight,
+  ArrowLeft,
+  ExternalLink,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  Send,
+  CheckCircle2,
+  Building,
+  KeyRound,
+  Sparkles,
+  RotateCcw,
+} from 'lucide-react'
+import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
 
 export function LoginPage() {
-  const { isAuthenticated, login } = useAuth()
+  const { isAuthenticated, login, isLoading } = useAuth()
   const navigate = useNavigate()
+
+  // Mode: 'login' | 'forgot-password'
+  const [mode, setMode] = useState<'login' | 'forgot-password'>('login')
+
+  // Login form state
+  const [nip, setNip] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Forgot password form state
+  const [forgotNip, setForgotNip] = useState('')
+  const [isForgotSubmitting, setIsForgotSubmitting] = useState(false)
+  const [forgotSubmitted, setForgotSubmitted] = useState(false)
 
   // Jika sudah login, redirect ke dashboard
   useEffect(() => {
@@ -16,119 +47,406 @@ export function LoginPage() {
     }
   }, [isAuthenticated, navigate])
 
-  const handleSSOLogin = () => {
-    // Nanti: window.location.href = buildSSOLoginURL()
-    // Mock: langsung login
-    login()
+  const handleLoginFormSubmit = (e: FormEvent) => {
+    e.preventDefault()
+
+    if (!nip.trim()) {
+      toast.error('Silakan masukkan NIP Anda')
+      return
+    }
+
+    if (!password) {
+      toast.error('Silakan masukkan kata sandi Anda')
+      return
+    }
+
+    setIsSubmitting(true)
+    setTimeout(() => {
+      login()
+      setIsSubmitting(false)
+      toast.success('Berhasil masuk ke portal SMART JABAR')
+    }, 400)
+  }
+
+  const handleForgotFormSubmit = (e: FormEvent) => {
+    e.preventDefault()
+
+    if (!forgotNip.trim()) {
+      toast.error('Silakan masukkan NIP Anda')
+      return
+    }
+
+    setIsForgotSubmitting(true)
+    setTimeout(() => {
+      setIsForgotSubmitting(false)
+      setForgotSubmitted(true)
+      toast.success('Tautan verifikasi berhasil dikirim ke email dinas')
+    }, 600)
+  }
+
+  const handleResetForgotState = () => {
+    setMode('login')
+    setForgotSubmitted(false)
+    setForgotNip('')
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-10 relative">
-      {/* Decorative background orbs */}
-      <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+    <LazyMotion features={domAnimation} strict>
+      <div className="min-h-screen min-h-dvh flex items-center justify-center p-3 sm:p-6 lg:p-10 relative">
+        {/* Main Glassmorphic Card Container */}
+        <m.div
+          initial={{ opacity: 0, scale: 0.97, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 w-full max-w-5xl bg-white/90 backdrop-blur-2xl border border-white/90 rounded-3xl shadow-2xl shadow-slate-900/10 overflow-hidden"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
+            {/* Panel Kiri — Login / Forgot Form (7 cols on lg) */}
+            <div className="lg:col-span-7 p-6 sm:p-8 lg:p-10 flex flex-col justify-between">
+              <div>
+                {/* Mobile Hero Header Image (Visible only on mobile/tablet) */}
+                <div className="relative lg:hidden -mx-6 -mt-6 sm:-mx-8 sm:-mt-8 mb-6 h-40 sm:h-48 overflow-hidden rounded-t-3xl">
+                  <img
+                    src="/backgrounds/gedung-sate-art.jpg"
+                    alt="Gedung Sate Bandung"
+                    className="w-full h-full object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent" />
+                  <div className="absolute top-3 left-3 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full border border-white/90 shadow-xs flex items-center gap-1.5 text-[11px] font-semibold text-slate-800">
+                    <Building className="h-3.5 w-3.5 text-primary-600" />
+                    <span>Gedung Sate Bandung</span>
+                  </div>
+                </div>
 
-      {/* Main Centered Container */}
-      <div className="relative z-10 w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-        {/* Panel Kiri — Login Form (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col justify-center">
-          {/* Logo & Header */}
-          <div className="flex items-center gap-3.5 mb-8">
-            <img
-              src="/logo-smart-jabar.webp"
-              alt="SMART JABAR"
-              className="h-14 w-14 rounded-xl ring-1 ring-white/10 shadow-lg shadow-primary-500/10"
-            />
-            <div>
-              <h1 className="text-white font-bold text-2xl tracking-tight">
-                SMART <span className="text-gradient">JABAR</span>
-              </h1>
-              <p className="text-white/40 text-xs mt-0.5">
-                Portal Administrasi Pemerintahan
-              </p>
-            </div>
-          </div>
+                {/* Logo & Header */}
+                <div className="flex items-center justify-between gap-3 mb-6 sm:mb-7">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="/logo-smart-jabar.webp"
+                      alt="SMART JABAR"
+                      className="h-11 w-11 sm:h-13 sm:w-13 rounded-2xl border border-slate-200/80 shadow-md shadow-primary-500/10 shrink-0 bg-white p-0.5"
+                    />
+                    <div>
+                      <h1 className="text-slate-900 font-extrabold text-xl sm:text-2xl tracking-tight">
+                        SMART <span className="text-gradient font-black">JABAR</span>
+                      </h1>
+                      <p className="text-slate-500 text-xs font-medium leading-tight">
+                        Portal Administrasi Pemerintahan Jawa Barat
+                      </p>
+                    </div>
+                  </div>
 
-          {/* Welcome heading */}
-         
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-50 border border-teal-200/70 text-teal-800 text-xs font-semibold">
+                    <Sparkles className="h-3.5 w-3.5 text-teal-600" />
+                    <span>Single Sign-On (SSO)</span>
+                  </div>
+                </div>
 
-          {/* SSO Action Box */}
-          <GlassCard strong className="p-6 sm:p-7 mb-6">
-             <div className="mb-6">
-            <h2 className="text-white text-xl font-semibold mb-2">
-              Selamat Datang
-            </h2>
-            <p className="text-white/50 text-xs sm:text-sm leading-relaxed">
-              Masuk menggunakan akun SSO Jawa Barat untuk mengakses seluruh layanan administrasi pemerintahan.
-            </p>
-          </div>
-            <Button
-              onClick={handleSSOLogin}
-              className="w-full h-12 bg-gradient-to-r from-primary-500 to-teal-600 hover:from-primary-400 hover:to-teal-500 text-white font-semibold text-sm sm:text-base rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all duration-300 group"
-            >
-              <Shield className="mr-2.5 h-4 w-4 sm:h-5 sm:w-5" />
-              Masuk dengan SSO
-              <ArrowRight className="ml-2.5 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
+                {/* Animate View Switch: Login vs Forgot Password */}
+                <AnimatePresence mode="wait">
+                  {mode === 'login' ? (
+                    <m.div
+                      key="login-form"
+                      initial={{ opacity: 0, x: -12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 12 }}
+                      transition={{ duration: 0.25 }}
+                      className="space-y-4"
+                    >
+                      {/* Form Header */}
+                      <div>
+                        <h2 className="text-slate-900 text-2xl sm:text-3xl font-extrabold tracking-tight">
+                          Masuk ke Akun
+                        </h2>
+                        <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
+                          Masukkan NIP dan kata sandi Anda untuk mengakses seluruh layanan administrasi pemerintahan Jawa Barat.
+                        </p>
+                      </div>
 
-            <div className="mt-4 pt-4 border-t border-white/5">
-              <p className="text-white/40 text-xs text-center leading-relaxed">
-                Autentikasi aman melalui Single Sign-On
-                <br />
-                Dinas Komunikasi dan Informatika Jawa Barat
-              </p>
-            </div>
-          </GlassCard>
+                      {/* Login Form */}
+                      <form onSubmit={handleLoginFormSubmit} className="space-y-4 pt-1">
+                        {/* NIP Input */}
+                        <div className="space-y-1.5">
+                          <Label htmlFor="login-nip" className="text-xs font-bold text-slate-700">
+                            NIP (Nomor Induk Pegawai)
+                          </Label>
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                              <User className="h-4 w-4" />
+                            </div>
+                            <Input
+                              id="login-nip"
+                              type="text"
+                              inputMode="numeric"
+                              autoComplete="username"
+                              placeholder="Masukkan 18 digit NIP"
+                              value={nip}
+                              onChange={e => setNip(e.target.value)}
+                              className="pl-10 h-11 bg-slate-50/80 border-slate-200 focus:bg-white rounded-xl text-sm font-medium transition-all"
+                            />
+                          </div>
+                        </div>
 
-          {/* Help link & Copyright */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-            <a
-              href="https://sso.jabarprov.go.id"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-white/30 hover:text-white/60 transition-colors"
-            >
-              <ExternalLink className="h-3 w-3" />
-              Lupa akun? Hubungi admin SSO Jabar
-            </a>
-            <span className="text-white/20 text-[11px]">
-              © 2026 Pemprov Jawa Barat
-            </span>
-          </div>
-        </div>
+                        {/* Password Input */}
+                        <div className="space-y-1.5">
+                          <Label htmlFor="login-password" className="text-xs font-bold text-slate-700">
+                            Kata Sandi
+                          </Label>
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                              <Lock className="h-4 w-4" />
+                            </div>
+                            <Input
+                              id="login-password"
+                              type={showPassword ? 'text' : 'password'}
+                              autoComplete="current-password"
+                              placeholder="Masukkan kata sandi akun"
+                              value={password}
+                              onChange={e => setPassword(e.target.value)}
+                              className="pl-10 pr-10 h-11 bg-slate-50/80 border-slate-200 focus:bg-white rounded-xl text-sm font-medium transition-all"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                              title={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
 
-        {/* Panel Kanan — Info/Branding Card (5 cols) */}
-        <div className="lg:col-span-5 hidden lg:block">
-          <GlassCard strong className="p-7 relative overflow-hidden">
-            {/* Subtle glow inside card */}
-            <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary-500/10 rounded-full blur-2xl pointer-events-none" />
+                        {/* Submit Button */}
+                        <Button
+                          type="submit"
+                          disabled={isSubmitting || isLoading}
+                          className="w-full h-11 sm:h-12 bg-gradient-to-r from-primary-600 via-primary-700 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-bold text-sm sm:text-base rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 group cursor-pointer"
+                        >
+                          {isSubmitting || isLoading ? (
+                            <span className="flex items-center gap-2">
+                              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              Memverifikasi Akun...
+                            </span>
+                          ) : (
+                            <span className="flex items-center justify-center gap-2">
+                              <Lock className="h-4 w-4" />
+                              Masuk ke Portal
+                              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                            </span>
+                          )}
+                        </Button>
+                      </form>
 
-            <h3 className="text-2xl font-bold text-white mb-2 leading-tight">
-              <span className="text-gradient-warm">Satu Login</span> untuk
-              <br />semua Layanan
-            </h3>
-            <p className="text-white/70 text-xs font-medium mb-4">
-              Administrasi Pemerintahan Jawa Barat
-            </p>
-            <p className="text-white/40 text-xs leading-relaxed mb-6">
-              Web portal dengan satu akses login yang menghubungkan berbagai
-              Layanan Administrasi Pemerintahan dan dapat diakses oleh seluruh
-              Aparatur Sipil Negara (ASN) Pemerintah Provinsi Jawa Barat.
-            </p>
+                      {/* Link: Pengguna Baru / Lupa Kata Sandi */}
+                      <div className="pt-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => setMode('forgot-password')}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:text-primary-800 hover:underline transition-all cursor-pointer"
+                        >
+                          <KeyRound className="h-3.5 w-3.5" />
+                          <span>Pengguna Baru / Lupa Kata Sandi?</span>
+                        </button>
+                      </div>
+                    </m.div>
+                  ) : (
+                    /* FORGOT PASSWORD / PENGGUNA BARU FORM */
+                    <m.div
+                      key="forgot-form"
+                      initial={{ opacity: 0, x: 12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -12 }}
+                      transition={{ duration: 0.25 }}
+                      className="space-y-4"
+                    >
+                      {/* Back Link */}
+                      <div>
+                        <button
+                          type="button"
+                          onClick={handleResetForgotState}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:text-primary-800 transition-colors cursor-pointer group mb-2"
+                        >
+                          <ArrowLeft className="h-3.5 w-3.5 group-hover:-translate-x-1 transition-transform" />
+                          <span>Kembali ke halaman masuk</span>
+                        </button>
 
-            <div className="flex flex-wrap gap-1.5">
-              {['JABAR SMART ASN', 'SIDEBAR', 'DASHBOARD JABAR', 'SINGAKOTA', 'SATU DATA JABAR'].map((name) => (
-                <span
-                  key={name}
-                  className="px-2.5 py-1 rounded-md text-[10px] font-medium text-white/50 bg-white/5 border border-white/5"
+                        <h2 className="text-slate-900 text-xl sm:text-2xl font-extrabold tracking-tight">
+                          Pengguna Baru / Lupa Kata Sandi
+                        </h2>
+                        <p className="text-slate-600 text-xs sm:text-sm mt-1 leading-relaxed">
+                          Masukkan NIP dan kami akan mengirimkan ke email resmi Anda langkah-langkah untuk membuat atau mereset kata sandi baru.
+                        </p>
+                      </div>
+
+                      {/* Success Card or Form */}
+                      {forgotSubmitted ? (
+                        <div className="p-5 rounded-2xl bg-teal-50/80 border border-teal-200/90 text-teal-900 space-y-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-2 rounded-xl bg-teal-600 text-white shadow-xs">
+                              <CheckCircle2 className="h-5 w-5" />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-extrabold">Tautan Verifikasi Terkirim!</h4>
+                              <p className="text-xs text-teal-700 mt-0.5">
+                                NIP: <span className="font-mono font-bold">{forgotNip}</span>
+                              </p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-teal-800 leading-relaxed">
+                            Petunjuk pembuatan kata sandi baru telah dikirimkan ke alamat email kedinasan (@jabarprov.go.id) yang terdaftar di database BKD Provinsi Jawa Barat.
+                          </p>
+                          <div className="flex items-center gap-2 pt-1">
+                            <Button
+                              onClick={handleResetForgotState}
+                              className="h-9 px-4 bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold rounded-xl cursor-pointer"
+                            >
+                              Kembali ke Halaman Masuk
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => setForgotSubmitted(false)}
+                              className="h-9 px-3 border-teal-300 text-teal-800 hover:bg-teal-100 text-xs font-semibold rounded-xl cursor-pointer"
+                            >
+                              <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+                              Kirim Ulang
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <form onSubmit={handleForgotFormSubmit} className="space-y-4 pt-1">
+                          {/* NIP Input */}
+                          <div className="space-y-1.5">
+                            <Label htmlFor="forgot-nip" className="text-xs font-bold text-slate-700">
+                              NIP (Nomor Induk Pegawai)
+                            </Label>
+                            <div className="relative">
+                              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <User className="h-4 w-4" />
+                              </div>
+                              <Input
+                                id="forgot-nip"
+                                type="text"
+                                inputMode="numeric"
+                                placeholder="Masukkan 18 digit NIP Anda"
+                                value={forgotNip}
+                                onChange={e => setForgotNip(e.target.value)}
+                                className="pl-10 h-11 bg-slate-50/80 border-slate-200 focus:bg-white rounded-xl text-sm font-medium transition-all"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Submit / SIMPAN Button */}
+                          <Button
+                            type="submit"
+                            disabled={isForgotSubmitting}
+                            className="w-full h-11 sm:h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm sm:text-base rounded-xl shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/35 transition-all duration-200 group cursor-pointer"
+                          >
+                            {isForgotSubmitting ? (
+                              <span className="flex items-center gap-2">
+                                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                Mengirim Tautan...
+                              </span>
+                            ) : (
+                              <span className="flex items-center justify-center gap-2">
+                                <Send className="h-4 w-4" />
+                                SIMPAN
+                              </span>
+                            )}
+                          </Button>
+
+                          <p className="text-[11px] text-slate-500 text-center leading-relaxed">
+                            Pastikan NIP Anda sudah terdaftar secara aktif pada sistem kepegawaian Pemerintah Provinsi Jawa Barat.
+                          </p>
+                        </form>
+                      )}
+                    </m.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Footer Links & Copyright */}
+              <div className="pt-5 mt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                <a
+                  href="https://sso.jabarprov.go.id"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-primary-600 hover:text-primary-800 font-semibold transition-colors"
                 >
-                  {name}
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                  Bantuan & Layanan Akun SSO
+                </a>
+                <span className="text-slate-400 text-[11px]">
+                  © 2026 Pemerintah Provinsi Jawa Barat
                 </span>
-              ))}
+              </div>
             </div>
-          </GlassCard>
-        </div>
+
+            {/* Panel Kanan — Gedung Sate Visual Hero (5 cols, visible on lg) */}
+            <div className="lg:col-span-5 relative hidden lg:block min-h-[560px] bg-slate-900 overflow-hidden">
+              {/* Background Gedung Sate Artwork */}
+              <img
+                src="/backgrounds/gedung-sate-art.jpg"
+                alt="Ikon Gedung Sate Jawa Barat"
+                className="absolute inset-0 w-full h-full object-cover object-center transform scale-105 hover:scale-100 transition-transform duration-700 ease-out"
+              />
+
+              {/* Smooth Gradient Overlays for Readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/30 to-slate-900/40" />
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950/30 via-transparent to-transparent" />
+
+              {/* Decorative Content over Gedung Sate Art */}
+              <div className="relative z-10 h-full p-8 flex flex-col justify-between text-white">
+                {/* Top Badge */}
+                <div className="flex items-center justify-between">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-xs font-semibold shadow-md">
+                    <Building className="h-3.5 w-3.5 text-amber-300" />
+                    <span>Gedung Sate Bandung</span>
+                  </div>
+
+                  <span className="text-[11px] font-mono text-white/80 bg-black/30 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
+                    Jawa Barat
+                  </span>
+                </div>
+
+                {/* Bottom Showcase Card */}
+                <div className="space-y-4">
+                  <div className="p-5 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 shadow-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="w-2 h-2 rounded-full bg-teal-400" />
+                      <p className="text-teal-200 text-xs font-bold uppercase tracking-wider">
+                        Satu Pintu Layanan Digital
+                      </p>
+                    </div>
+                    <h3 className="text-xl font-extrabold text-white leading-snug">
+                      Jabar Juara Lahir Batin
+                    </h3>
+                    <p className="text-slate-200 text-xs mt-2 leading-relaxed font-normal">
+                      Menghubungkan seluruh sistem administrasi pemerintahan, kepegawaian, dan kedinasan
+                      untuk melayani masyarakat dengan integritas dan kecepatan.
+                    </p>
+                  </div>
+
+                  {/* App Chips */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {['JABAR SMART ASN', 'SIDEBAR', 'DASHBOARD JABAR', 'SINGAKOTA', 'SATU DATA'].map(name => (
+                      <span
+                        key={name}
+                        className="px-2.5 py-1 rounded-lg text-[10px] font-bold text-white/90 bg-black/40 backdrop-blur-md border border-white/15"
+                      >
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </m.div>
       </div>
-    </div>
+    </LazyMotion>
   )
 }

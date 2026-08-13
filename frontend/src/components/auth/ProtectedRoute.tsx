@@ -13,9 +13,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-mesh flex items-center justify-center">
-        <div className="glass-card p-8 animate-glow-pulse">
-          <p className="text-white/70">Memuat...</p>
+      <div className="min-h-screen bg-portal flex items-center justify-center">
+        <div className="bg-white/90 border border-slate-200 shadow-lg rounded-2xl p-8 animate-pulse">
+          <p className="text-slate-600 font-medium">Memuat portal...</p>
         </div>
       </div>
     )
@@ -27,3 +27,4 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   return <>{children}</>
 }
+

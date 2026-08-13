@@ -1,14 +1,31 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '@/lib/auth/auth-context'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AdminRoute } from '@/components/auth/AdminRoute'
-import { LoginPage } from '@/pages/LoginPage'
-import { DashboardPage } from '@/pages/DashboardPage'
-import { AdminServicesPage } from '@/pages/admin/AdminServicesPage'
-import { AdminNewsPage } from '@/pages/admin/AdminNewsPage'
-import { AdminCategoriesPage } from '@/pages/admin/AdminCategoriesPage'
+import { LoadingFallback } from '@/components/shared/LoadingFallback'
+import { Toaster } from '@/components/ui/sonner'
+
+// Code splitting — Lazy load each page on demand
+const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })))
+const DashboardPage = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
+const AdminServicesPage = lazy(() => import('@/pages/admin/AdminServicesPage').then(m => ({ default: m.AdminServicesPage })))
+const AdminNewsPage = lazy(() => import('@/pages/admin/AdminNewsPage').then(m => ({ default: m.AdminNewsPage })))
+
+/**
+ * Thin Suspense wrapper for per-route granular loading.
+ * Falls back to LoadingFallback only while the route's chunk is being fetched —
+ * other parts of the layout (navbar, etc.) remain stable during navigation.
+ */
+function RouteSuspense({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      {children}
+    </Suspense>
+  )
+}
 
 function App() {
   return (
@@ -17,7 +34,14 @@ function App() {
         <Routes>
           {/* Auth routes */}
           <Route element={<AuthLayout />}>
-            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/login"
+              element={
+                <RouteSuspense>
+                  <LoginPage />
+                </RouteSuspense>
+              }
+            />
           </Route>
 
           {/* Protected routes */}
@@ -28,14 +52,23 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/" element={<DashboardPage />} />
+            <Route
+              path="/"
+              element={
+                <RouteSuspense>
+                  <DashboardPage />
+                </RouteSuspense>
+              }
+            />
 
             {/* Admin routes */}
             <Route
               path="/admin/layanan"
               element={
                 <AdminRoute>
-                  <AdminServicesPage />
+                  <RouteSuspense>
+                    <AdminServicesPage />
+                  </RouteSuspense>
                 </AdminRoute>
               }
             />
@@ -43,20 +76,19 @@ function App() {
               path="/admin/berita"
               element={
                 <AdminRoute>
-                  <AdminNewsPage />
+                  <RouteSuspense>
+                    <AdminNewsPage />
+                  </RouteSuspense>
                 </AdminRoute>
               }
             />
             <Route
               path="/admin/kategori"
-              element={
-                <AdminRoute>
-                  <AdminCategoriesPage />
-                </AdminRoute>
-              }
+              element={<Navigate to="/admin/layanan?tab=kategori" replace />}
             />
           </Route>
         </Routes>
+        <Toaster position="top-right" richColors />
       </AuthProvider>
     </BrowserRouter>
   )
