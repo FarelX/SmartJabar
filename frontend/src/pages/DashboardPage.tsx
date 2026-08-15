@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { LazyMotion, domAnimation, m } from 'framer-motion'
 import { useAuth } from '@/lib/auth/auth-context'
 import { useFavorites } from '@/lib/hooks/useFavorites'
 import { QuickAccessCard } from '@/components/services/QuickAccessCard'
@@ -198,11 +199,11 @@ export function DashboardPage() {
           {/* Quick Access — Top 3 Layanan Terpopuler */}
           <div>
             <FadeInView direction="down">
-              <div className="flex items-center justify-center gap-2 mb-3.5">
+              <div className="flex items-center gap-2.5 mb-3">
                 <h2 className="text-white font-bold text-lg drop-shadow-xs">Layanan Terpopuler</h2>
               </div>
             </FadeInView>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 xl:max-w-[75%] mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {topServices.map((service, index) => (
                 <FadeInView
                   key={service.id}
@@ -231,55 +232,68 @@ export function DashboardPage() {
                 </span>
               </div>
 
-              {/* Grid vs List View Toggle — frosted glass pill */}
-              <div
-                className="flex items-center p-1 rounded-xl shadow-sm"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.82)',
-                  backdropFilter: 'blur(16px) saturate(160%)',
-                  WebkitBackdropFilter: 'blur(16px) saturate(160%)',
-                  border: '1px solid rgba(255, 255, 255, 0.65)',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
-                }}
-              >
-                <button
-                  onClick={() => handleSetViewMode('grid')}
-                  title="Tampilan Grid Kartu"
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
-                    viewMode === 'grid'
-                      ? 'bg-white text-slate-800 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
-                  )}
+              {/* Grid vs List View Toggle — frosted glass pill with framer-motion layoutId */}
+              <LazyMotion features={domAnimation} strict>
+                <div
+                  className="flex items-center p-1 rounded-xl shadow-xs relative"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.40) 100%)',
+                    backdropFilter: 'blur(20px) saturate(200%) brightness(118%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(200%) brightness(118%)',
+                    border: '1px solid rgba(255, 255, 255, 0.70)',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.06), inset 0 1px 1px rgba(255,255,255,0.95), inset 0 0 10px rgba(255,255,255,0.25)',
+                  }}
                 >
-                  <LayoutGrid className="h-3.5 w-3.5" />
-                  <span className="hidden xs:inline">Grid</span>
-                </button>
-                <button
-                  onClick={() => handleSetViewMode('list')}
-                  title="Tampilan Tabel/List Ramping"
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
-                    viewMode === 'list'
-                      ? 'bg-white text-slate-800 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
-                  )}
-                >
-                  <List className="h-3.5 w-3.5" />
-                  <span className="hidden xs:inline">List</span>
-                </button>
-              </div>
+                  <button
+                    onClick={() => handleSetViewMode('grid')}
+                    title="Tampilan Grid Kartu"
+                    className={cn(
+                      'relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 cursor-pointer select-none',
+                      viewMode === 'grid' ? 'text-slate-900' : 'text-slate-600'
+                    )}
+                  >
+                    {viewMode === 'grid' && (
+                      <m.div
+                        layoutId="activeViewModeIndicator"
+                        className="absolute inset-0 bg-white/90 rounded-lg shadow-xs border border-white/80"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <LayoutGrid className="h-3.5 w-3.5 relative z-10" />
+                    <span className="hidden xs:inline relative z-10">Grid</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleSetViewMode('list')}
+                    title="Tampilan Tabel/List Ramping"
+                    className={cn(
+                      'relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 cursor-pointer select-none',
+                      viewMode === 'list' ? 'text-slate-900' : 'text-slate-600'
+                    )}
+                  >
+                    {viewMode === 'list' && (
+                      <m.div
+                        layoutId="activeViewModeIndicator"
+                        className="absolute inset-0 bg-white/90 rounded-lg shadow-xs border border-white/80"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <List className="h-3.5 w-3.5 relative z-10" />
+                    <span className="hidden xs:inline relative z-10">List</span>
+                  </button>
+                </div>
+              </LazyMotion>
             </div>
 
-            {/* Filter & Search Bar — Frosted Glass, more solid white */}
+            {/* Filter & Search Bar — Luminous Frosted Glass */}
             <div
               className="p-3 sm:p-4 rounded-2xl shadow-lg transition-all"
               style={{
-                background: 'rgba(255, 255, 255, 0.82)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                border: '1px solid rgba(255, 255, 255, 0.65)',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.95)',
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.40) 100%)',
+                backdropFilter: 'blur(20px) saturate(200%) brightness(118%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(200%) brightness(118%)',
+                border: '1px solid rgba(255, 255, 255, 0.70)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04), inset 0 1.5px 1px rgba(255,255,255,0.95), inset 0 0 16px rgba(255,255,255,0.25)',
               }}
             >
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
@@ -290,12 +304,12 @@ export function DashboardPage() {
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Cari layanan berdasarkan nama atau deskripsi..."
-                    className="pl-10 pr-8 bg-white/60 hover:bg-white/80 focus:bg-white border-slate-200/70 focus:border-slate-300 text-slate-800 placeholder:text-slate-400 text-xs sm:text-sm h-11 rounded-xl transition-all shadow-inner"
+                    className="pl-10 pr-8 bg-slate-50/80 hover:bg-slate-50 focus:bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 text-xs sm:text-sm h-11 rounded-xl transition-all shadow-2xs"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-0.5 cursor-pointer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
                       title="Hapus pencarian"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -309,18 +323,18 @@ export function DashboardPage() {
                     value={selectedCategory !== null ? String(selectedCategory) : 'all'}
                     onValueChange={val => setSelectedCategory(val === 'all' ? null : Number(val))}
                   >
-                    <SelectTrigger className="w-full bg-white/60 hover:bg-white/80 focus:bg-white border-slate-200/70 text-slate-700 text-xs sm:text-sm h-11 rounded-xl">
+                    <SelectTrigger className="w-full bg-slate-50/80 hover:bg-slate-50 focus:bg-white border-slate-200 text-slate-700 text-xs sm:text-sm h-11 rounded-xl shadow-2xs">
                       <SelectValue placeholder="Semua Kategori" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white/95 backdrop-blur-xl border border-slate-200 text-slate-800 shadow-2xl rounded-xl">
-                      <SelectItem value="all" className="text-slate-700 hover:bg-slate-50 focus:bg-slate-50 cursor-pointer">
+                    <SelectContent className="bg-white border-slate-200 text-slate-800 shadow-xl rounded-xl">
+                      <SelectItem value="all" className="cursor-pointer text-xs sm:text-sm">
                         Semua Kategori
                       </SelectItem>
                       {mockCategories.map(cat => (
                         <SelectItem
                           key={cat.id}
                           value={String(cat.id)}
-                          className="text-slate-700 hover:bg-slate-50 focus:bg-slate-50 cursor-pointer"
+                          className="cursor-pointer text-xs sm:text-sm"
                         >
                           {cat.nama}
                         </SelectItem>
