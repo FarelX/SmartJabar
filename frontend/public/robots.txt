@@ -1,0 +1,8 @@
+# Robots.txt for SMART JABAR Portal
+User-agent: *
+Allow: /
+Allow: /login
+Disallow: /admin/
+Disallow: /ubah-password
+
+Sitemap: https://smart.jabarprov.go.id/sitemap.xml

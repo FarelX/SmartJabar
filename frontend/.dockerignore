@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+*.log
+coverage
+README.md
+CLAUDE.md
+fe-pre-deploy-checklist.md
+DEPLOYMENT.md

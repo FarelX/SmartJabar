@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react'
+import { LazyMotion, domAnimation, m } from 'framer-motion'
 import { useAuth } from '@/lib/auth/auth-context'
 import { useFavorites } from '@/lib/hooks/useFavorites'
-import { SearchBar } from '@/components/search/SearchBar'
-import { CategoryFilter } from '@/components/search/CategoryFilter'
 import { QuickAccessCard } from '@/components/services/QuickAccessCard'
 import { ServiceCard } from '@/components/services/ServiceCard'
 import { ServiceListItem } from '@/components/services/ServiceListItem'
@@ -33,7 +32,7 @@ import {
 import { mockServices, getTopServices } from '@/lib/mock/services'
 import { mockCategories } from '@/lib/mock/categories'
 import { getStoredNews, getActiveNews } from '@/lib/mock/news'
-import { LayoutGrid, List, Layers, Trash2 } from 'lucide-react'
+import { LayoutGrid, List, Layers, Trash2, Search, X, RotateCcw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { Service, ServiceFormData } from '@/types'
@@ -80,6 +79,13 @@ export function DashboardPage() {
 
   // Active news for popup
   const activeNews = useMemo(() => getActiveNews(getStoredNews()), [])
+
+  const hasActiveFilters = searchQuery.trim() !== '' || selectedCategory !== null
+
+  const handleResetFilters = () => {
+    setSearchQuery('')
+    setSelectedCategory(null)
+  }
 
   // Filtered services — Layanan favorit disematkan di paling atas daftar layanan
   const filteredServices = useMemo(() => {
@@ -171,210 +177,312 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-0">
       {/* News Popup */}
       <NewsPopup news={activeNews} />
 
-      {/* Greeting Header */}
-      <GreetingHeader user={user} />
+      {/* =========================================================================
+          HERO SECTION — Full-width with raw Gedung Sate background (No overlay)
+          ========================================================================= */}
+      <section
+        className="relative w-full overflow-hidden text-white pt-16 sm:pt-20 pb-6 sm:pb-8 bg-cover bg-bottom sm:bg-[center_bottom] bg-no-repeat shadow-xs"
+        style={{
+          backgroundImage: "url('/backgrounds/hero-background.png')",
+          backgroundPosition: 'center bottom',
+        }}
+      >
+        {/* Hero Content Container */}
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-5 pb-2 sm:pb-4 space-y-6 sm:space-y-7">
+          {/* Greeting & Identity Banner */}
+          <GreetingHeader user={user} />
 
-      {/* Quick Access — Top 3 Layanan Terpopuler */}
-      <section>
-        <FadeInView direction="down">
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-slate-900 font-bold text-lg">Layanan Terpopuler</h2>
-          </div>
-        </FadeInView>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {topServices.map((service, index) => (
-            <FadeInView
-              key={service.id}
-              direction="up"
-              delay={index * 0.08}
-              amount={0.15}
-              margin="0px 0px -30px 0px"
-              className="h-full"
-            >
-              <QuickAccessCard
-                service={service}
-                rank={index + 1}
-                onServiceClick={handleServiceClick}
-                isFavorite={isFavorite(service.id)}
-                onToggleFavorite={toggleFavorite}
-              />
+          {/* Quick Access — Top 3 Layanan Terpopuler */}
+          <div>
+            <FadeInView direction="down">
+              <div className="flex items-center gap-2.5 mb-3">
+                <h2 className="text-white font-bold text-lg drop-shadow-xs">Layanan Terpopuler</h2>
+              </div>
             </FadeInView>
-          ))}
-        </div>
-      </section>
-
-      {/* Search & Filter */}
-      <FadeInView direction="down">
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <div className="flex items-center gap-2">
-              <h2 className="text-slate-900 font-bold text-lg">Semua Layanan</h2>
-            </div>
-          </div>
-
-          {/* Grid vs List View Toggle */}
-          <div className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 shadow-2xs">
-            <button
-              onClick={() => handleSetViewMode('grid')}
-              title="Tampilan Grid Kartu"
-              className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
-                viewMode === 'grid'
-                  ? 'bg-white text-primary-700 shadow-2xs'
-                  : 'text-slate-500 hover:text-slate-800'
-              )}
-            >
-              <LayoutGrid className="h-3.5 w-3.5" />
-              <span className="hidden xs:inline">Grid</span>
-            </button>
-            <button
-              onClick={() => handleSetViewMode('list')}
-              title="Tampilan Tabel/List Ramping"
-              className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
-                viewMode === 'list'
-                  ? 'bg-white text-primary-700 shadow-2xs'
-                  : 'text-slate-500 hover:text-slate-800'
-              )}
-            >
-              <List className="h-3.5 w-3.5" />
-              <span className="hidden xs:inline">List</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Cari layanan berdasarkan nama atau deskripsi..."
-          />
-          <CategoryFilter
-            categories={mockCategories}
-            selected={selectedCategory}
-            onChange={setSelectedCategory}
-          />
-        </div>
-      </FadeInView>
-
-      {/* Services Grid or List */}
-      <section>
-        {filteredServices.length > 0 ? (
-          viewMode === 'grid' ? (
-            <div
-              key={`grid-${selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}`}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-            >
-              {filteredServices.map((service, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {topServices.map((service, index) => (
                 <FadeInView
                   key={service.id}
                   direction="up"
-                  delay={(index % 4) * 0.05}
-                  amount={0.12}
-                  margin="0px 0px -40px 0px"
+                  delay={index * 0.08}
+                  amount={0.15}
+                  margin="0px 0px -30px 0px"
                   className="h-full"
                 >
-                  <ServiceCard
+                  <QuickAccessCard
                     service={service}
                     onServiceClick={handleServiceClick}
-                    onEdit={handleOpenEdit}
-                    onDelete={handleOpenDelete}
-                    isFavorite={isFavorite(service.id)}
-                    onToggleFavorite={toggleFavorite}
                   />
                 </FadeInView>
               ))}
             </div>
-          ) : (
-            <div
-              key={`list-${selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}`}
-              className="space-y-2.5"
-            >
-              {filteredServices.map((service, index) => (
-                <FadeInView
-                  key={service.id}
-                  direction="up"
-                  delay={(index % 8) * 0.03}
-                  amount={0.1}
+          </div>
+
+          {/* Search & Filter Section (Frosted Glass Style) */}
+          <FadeInView direction="down">
+            <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h2 className="text-white font-bold text-lg drop-shadow-xs">Semua Layanan</h2>
+                <span className="text-xs text-white/80 font-medium">
+                  ({filteredServices.length} dari {services.filter(s => s.is_active).length} layanan)
+                </span>
+              </div>
+
+              {/* Grid vs List View Toggle — frosted glass pill with framer-motion layoutId */}
+              <LazyMotion features={domAnimation} strict>
+                <div
+                  className="flex items-center p-1 rounded-xl shadow-xs relative"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.40) 100%)',
+                    backdropFilter: 'blur(20px) saturate(200%) brightness(118%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(200%) brightness(118%)',
+                    border: '1px solid rgba(255, 255, 255, 0.70)',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.06), inset 0 1px 1px rgba(255,255,255,0.95), inset 0 0 10px rgba(255,255,255,0.25)',
+                  }}
                 >
-                  <ServiceListItem
-                    service={service}
-                    onServiceClick={handleServiceClick}
-                    onEdit={handleOpenEdit}
-                    onDelete={handleOpenDelete}
-                    isFavorite={isFavorite(service.id)}
-                    onToggleFavorite={toggleFavorite}
-                  />
-                </FadeInView>
-              ))}
+                  <button
+                    onClick={() => handleSetViewMode('grid')}
+                    title="Tampilan Grid Kartu"
+                    className={cn(
+                      'relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 cursor-pointer select-none',
+                      viewMode === 'grid' ? 'text-slate-900' : 'text-slate-600'
+                    )}
+                  >
+                    {viewMode === 'grid' && (
+                      <m.div
+                        layoutId="activeViewModeIndicator"
+                        className="absolute inset-0 bg-white/90 rounded-lg shadow-xs border border-white/80"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <LayoutGrid className="h-3.5 w-3.5 relative z-10" />
+                    <span className="hidden xs:inline relative z-10">Grid</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleSetViewMode('list')}
+                    title="Tampilan Tabel/List Ramping"
+                    className={cn(
+                      'relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-200 cursor-pointer select-none',
+                      viewMode === 'list' ? 'text-slate-900' : 'text-slate-600'
+                    )}
+                  >
+                    {viewMode === 'list' && (
+                      <m.div
+                        layoutId="activeViewModeIndicator"
+                        className="absolute inset-0 bg-white/90 rounded-lg shadow-xs border border-white/80"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <List className="h-3.5 w-3.5 relative z-10" />
+                    <span className="hidden xs:inline relative z-10">List</span>
+                  </button>
+                </div>
+              </LazyMotion>
             </div>
-          )
-        ) : (
-          <FadeInView className="glass-card p-12 text-center">
-            <Layers className="h-10 w-10 text-slate-300 mx-auto mb-2" />
-            <p className="text-slate-500 text-sm">
-              Tidak ada layanan yang sesuai dengan pencarian Anda.
-            </p>
+
+            {/* Filter & Search Bar — Luminous Frosted Glass */}
+            <div
+              className="p-3 sm:p-4 rounded-2xl shadow-lg transition-all"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.40) 100%)',
+                backdropFilter: 'blur(20px) saturate(200%) brightness(118%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(200%) brightness(118%)',
+                border: '1px solid rgba(255, 255, 255, 0.70)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04), inset 0 1.5px 1px rgba(255,255,255,0.95), inset 0 0 16px rgba(255,255,255,0.25)',
+              }}
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                {/* Search input */}
+                <div className="sm:col-span-8 relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  <Input
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Cari layanan berdasarkan nama atau deskripsi..."
+                    className="pl-10 pr-8 bg-slate-50/80 hover:bg-slate-50 focus:bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 text-xs sm:text-sm h-11 rounded-xl transition-all shadow-2xs"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                      title="Hapus pencarian"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Filter Kategori */}
+                <div className="sm:col-span-4">
+                  <Select
+                    value={selectedCategory !== null ? String(selectedCategory) : 'all'}
+                    onValueChange={val => setSelectedCategory(val === 'all' ? null : Number(val))}
+                  >
+                    <SelectTrigger className="w-full bg-slate-50/80 hover:bg-slate-50 focus:bg-white border-slate-200 text-slate-700 text-xs sm:text-sm h-11 rounded-xl shadow-2xs">
+                      <SelectValue placeholder="Semua Kategori" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-slate-200 text-slate-800 shadow-xl rounded-xl">
+                      <SelectItem value="all" className="cursor-pointer text-xs sm:text-sm">
+                        Semua Kategori
+                      </SelectItem>
+                      {mockCategories.map(cat => (
+                        <SelectItem
+                          key={cat.id}
+                          value={String(cat.id)}
+                          className="cursor-pointer text-xs sm:text-sm"
+                        >
+                          {cat.nama}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
           </FadeInView>
-        )}
+        </div>
       </section>
 
-      {/* Edit Service Dialog (shadcn/ui) */}
+      {/* =========================================================================
+          CONTENT SECTION — 19 Solid White Cards Grid & List (Directly touching)
+          ========================================================================= */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-10 sm:pb-14 space-y-8">
+        <section>
+          {filteredServices.length > 0 ? (
+            viewMode === 'grid' ? (
+              <div
+                key={`grid-${selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}`}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+              >
+                {filteredServices.map((service, index) => (
+                  <FadeInView
+                    key={service.id}
+                    direction="up"
+                    delay={(index % 4) * 0.05}
+                    amount={0.12}
+                    margin="0px 0px -40px 0px"
+                    className="h-full"
+                  >
+                    <ServiceCard
+                      service={service}
+                      onServiceClick={handleServiceClick}
+                      onEdit={handleOpenEdit}
+                      onDelete={handleOpenDelete}
+                      isFavorite={isFavorite(service.id)}
+                      onToggleFavorite={toggleFavorite}
+                    />
+                  </FadeInView>
+                ))}
+              </div>
+            ) : (
+              <div
+                key={`list-${selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}`}
+                className="space-y-2.5"
+              >
+                {filteredServices.map((service, index) => (
+                  <FadeInView
+                    key={service.id}
+                    direction="up"
+                    delay={(index % 8) * 0.04}
+                    amount={0.1}
+                    margin="0px 0px -40px 0px"
+                  >
+                    <ServiceListItem
+                      service={service}
+                      onServiceClick={handleServiceClick}
+                      onEdit={handleOpenEdit}
+                      onDelete={handleOpenDelete}
+                      isFavorite={isFavorite(service.id)}
+                      onToggleFavorite={toggleFavorite}
+                    />
+                  </FadeInView>
+                ))}
+              </div>
+            )
+          ) : (
+            <FadeInView>
+              <div className="p-12 text-center bg-white/70 rounded-2xl border border-slate-200/80 shadow-2xs">
+                <Layers className="h-10 w-10 text-slate-300 mx-auto mb-2 stroke-[1.5]" />
+                <p className="text-slate-600 font-semibold text-sm">Tidak ada layanan yang ditemukan</p>
+                <p className="text-slate-400 text-xs mt-1 max-w-sm mx-auto">
+                  Coba gunakan kata kunci pencarian yang lain atau ubah kategori filter.
+                </p>
+                {hasActiveFilters && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetFilters}
+                    className="mt-3 text-xs border-slate-200"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+                    Reset Filter
+                  </Button>
+                )}
+              </div>
+            </FadeInView>
+          )}
+        </section>
+      </div>
+
+      {/* Edit Service Modal (shadcn/ui Dialog) */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl max-h-[90dvh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="w-[calc(100vw-1.5rem)] max-w-lg bg-white border-slate-200 text-slate-900 shadow-xl max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:p-6">
+          <DialogHeader className="space-y-1">
             <DialogTitle className="text-lg font-bold text-slate-900">
               Edit Layanan
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Perbarui informasi layanan administrasi di portal SmartJabar.
+              Perbarui data layanan SmartJabar.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
+          <div className="space-y-4 py-2 text-xs">
             <div className="space-y-1.5">
-              <Label className="text-slate-700 text-xs font-semibold">Nama Layanan</Label>
+              <Label className="text-slate-700 text-xs font-semibold">Nama Layanan *</Label>
               <Input
                 value={form.nama}
                 onChange={e => setForm(f => ({ ...f, nama: e.target.value }))}
-                placeholder="Contoh: JABAR SMART ASN"
+                placeholder="Contoh: SIAP Jabar"
+                className="h-9.5 rounded-xl border-slate-200 text-xs"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-slate-700 text-xs font-semibold">Deskripsi</Label>
+              <Label className="text-slate-700 text-xs font-semibold">Deskripsi Layanan</Label>
               <Textarea
                 value={form.deskripsi}
                 onChange={e => setForm(f => ({ ...f, deskripsi: e.target.value }))}
-                className="min-h-[85px] resize-none"
-                placeholder="Deskripsi singkat layanan..."
+                placeholder="Deskripsi singkat mengenai layanan..."
+                className="min-h-[80px] resize-none rounded-xl border-slate-200 text-xs"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-slate-700 text-xs font-semibold">URL Tujuan</Label>
+              <Label className="text-slate-700 text-xs font-semibold">URL Tujuan Layanan *</Label>
               <Input
                 value={form.url_tujuan}
                 onChange={e => setForm(f => ({ ...f, url_tujuan: e.target.value }))}
                 placeholder="https://..."
+                className="h-9.5 rounded-xl border-slate-200 text-xs"
               />
             </div>
             <ImageUpload
               value={form.icon_url}
-              onChange={(url) => setForm(f => ({ ...f, icon_url: url }))}
+              onChange={url => setForm(f => ({ ...f, icon_url: url }))}
               onRemove={() => setForm(f => ({ ...f, icon_url: '' }))}
-              label="Logo / Ikon Layanan"
+              label="Ikon / Logo Layanan"
               aspectRatio="square"
-              maxSizeMB={5}
+              maxSizeMB={2}
             />
             <div className="space-y-1.5">
-              <Label className="text-slate-700 text-xs font-semibold">Kategori</Label>
+              <Label className="text-slate-700 text-xs font-semibold">Kategori Layanan *</Label>
               <Select
                 value={String(form.category_id)}
-                onValueChange={(val) => setForm(f => ({ ...f, category_id: Number(val) }))}
+                onValueChange={val => setForm(f => ({ ...f, category_id: Number(val) }))}
               >
-                <SelectTrigger className="w-full bg-white border-slate-200">
+                <SelectTrigger className="w-full h-9.5 rounded-xl border-slate-200 text-xs">
                   <SelectValue placeholder="Pilih Kategori" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-slate-200 text-slate-800 shadow-lg">
@@ -386,16 +494,18 @@ export function DashboardPage() {
                 </SelectContent>
               </Select>
             </div>
-
-            {/* Toggle Aktif with shadcn Switch */}
-            <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-200/80">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
               <div className="space-y-0.5">
-                <Label className="text-slate-800 text-xs font-semibold">Layanan Aktif</Label>
-                <p className="text-slate-400 text-[11px]">Tampilkan layanan di portal publik</p>
+                <Label className="text-slate-800 text-xs font-semibold cursor-pointer">
+                  Status Layanan Aktif
+                </Label>
+                <p className="text-slate-500 text-[11px]">
+                  Tampilkan layanan di dashboard ASN.
+                </p>
               </div>
               <Switch
                 checked={form.is_active}
-                onCheckedChange={(checked) => setForm(f => ({ ...f, is_active: checked }))}
+                onCheckedChange={checked => setForm(f => ({ ...f, is_active: checked }))}
               />
             </div>
           </div>
@@ -410,7 +520,7 @@ export function DashboardPage() {
             <Button
               onClick={handleSaveEdit}
               disabled={!form.nama.trim() || !form.url_tujuan.trim()}
-              className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white font-medium shadow-sm"
+              className="w-full sm:w-auto bg-primary-600 hover:bg-primary-700 text-white font-medium shadow-sm"
             >
               Simpan Perubahan
             </Button>
@@ -420,32 +530,39 @@ export function DashboardPage() {
 
       {/* Delete Service Confirmation Dialog (shadcn/ui) */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="w-[calc(100vw-1rem)] max-w-md bg-white border-slate-200 text-slate-900 shadow-xl">
+        <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-md bg-white border-slate-200 text-slate-900 shadow-xl rounded-2xl p-5 sm:p-6">
           <DialogHeader>
-            <div className="flex items-center gap-2.5 text-red-600">
-              <div className="p-2 rounded-lg bg-red-50 border border-red-100">
-                <Trash2 className="h-5 w-5" />
+            <div className="flex items-center gap-3 text-red-600">
+              <div className="p-2.5 rounded-xl bg-red-50 border border-red-100 shrink-0">
+                <Trash2 className="h-5 w-5 text-red-600" />
               </div>
-              <DialogTitle className="text-lg font-bold text-slate-900">
-                Hapus Layanan?
-              </DialogTitle>
+              <div>
+                <DialogTitle className="text-base font-bold text-slate-900">
+                  Hapus Layanan?
+                </DialogTitle>
+                <DialogDescription className="text-xs text-slate-500 mt-0.5">
+                  Tindakan ini tidak dapat dibatalkan.
+                </DialogDescription>
+              </div>
             </div>
-            <DialogDescription className="text-xs text-slate-500 pt-2 leading-relaxed">
-              Layanan <strong className="text-slate-800">{activeService?.nama}</strong> akan dihapus dari daftar layanan portal.
-            </DialogDescription>
           </DialogHeader>
+
+          <div className="py-3 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200/80 my-2">
+            Layanan <strong className="text-slate-900 font-semibold">{activeService?.nama}</strong> akan dihapus secara permanen dari katalog portal.
+          </div>
+
           <DialogFooter className="gap-2 pt-2">
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
-              className="border-slate-200 text-slate-700 hover:bg-slate-100"
+              className="border-slate-200 text-slate-700 hover:bg-slate-100 text-xs h-9 rounded-xl"
             >
               Batal
             </Button>
             <Button
               variant="destructive"
               onClick={handleConfirmDelete}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium"
+              className="bg-red-600 hover:bg-red-700 text-white font-medium text-xs h-9 rounded-xl shadow-xs"
             >
               Hapus Layanan
             </Button>

@@ -16,7 +16,6 @@ import {
   CheckCircle2,
   Building,
   KeyRound,
-  Sparkles,
   RotateCcw,
 } from 'lucide-react'
 import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion'
@@ -50,13 +49,31 @@ export function LoginPage() {
   const handleLoginFormSubmit = (e: FormEvent) => {
     e.preventDefault()
 
-    if (!nip.trim()) {
+    const cleanNip = nip.trim()
+    const cleanPassword = password.trim()
+
+    if (!cleanNip) {
       toast.error('Silakan masukkan NIP Anda')
       return
     }
 
-    if (!password) {
+    if (!/^\d+$/.test(cleanNip)) {
+      toast.error('NIP hanya boleh berisi angka (digit)')
+      return
+    }
+
+    if (cleanNip.length < 8 || cleanNip.length > 20) {
+      toast.error('Panjang NIP tidak valid (NIP standar ASN terdiri dari 18 digit)')
+      return
+    }
+
+    if (!cleanPassword) {
       toast.error('Silakan masukkan kata sandi Anda')
+      return
+    }
+
+    if (cleanPassword.length < 4) {
+      toast.error('Kata sandi minimal 4 karakter')
       return
     }
 
@@ -71,8 +88,20 @@ export function LoginPage() {
   const handleForgotFormSubmit = (e: FormEvent) => {
     e.preventDefault()
 
-    if (!forgotNip.trim()) {
+    const cleanNip = forgotNip.trim()
+
+    if (!cleanNip) {
       toast.error('Silakan masukkan NIP Anda')
+      return
+    }
+
+    if (!/^\d+$/.test(cleanNip)) {
+      toast.error('NIP hanya boleh berisi angka (digit)')
+      return
+    }
+
+    if (cleanNip.length < 8 || cleanNip.length > 20) {
+      toast.error('Panjang NIP tidak valid (NIP standar ASN terdiri dari 18 digit)')
       return
     }
 
@@ -137,7 +166,6 @@ export function LoginPage() {
                   </div>
 
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-50 border border-teal-200/70 text-teal-800 text-xs font-semibold">
-                    <Sparkles className="h-3.5 w-3.5 text-teal-600" />
                     <span>Single Sign-On (SSO)</span>
                   </div>
                 </div>
@@ -178,10 +206,11 @@ export function LoginPage() {
                               id="login-nip"
                               type="text"
                               inputMode="numeric"
+                              maxLength={18}
                               autoComplete="username"
                               placeholder="Masukkan 18 digit NIP"
                               value={nip}
-                              onChange={e => setNip(e.target.value)}
+                              onChange={e => setNip(e.target.value.replace(/\D/g, '').slice(0, 18))}
                               className="pl-10 h-11 bg-slate-50/80 border-slate-200 focus:bg-white rounded-xl text-sm font-medium transition-all"
                             />
                           </div>
@@ -331,9 +360,10 @@ export function LoginPage() {
                                 id="forgot-nip"
                                 type="text"
                                 inputMode="numeric"
+                                maxLength={18}
                                 placeholder="Masukkan 18 digit NIP Anda"
                                 value={forgotNip}
-                                onChange={e => setForgotNip(e.target.value)}
+                                onChange={e => setForgotNip(e.target.value.replace(/\D/g, '').slice(0, 18))}
                                 className="pl-10 h-11 bg-slate-50/80 border-slate-200 focus:bg-white rounded-xl text-sm font-medium transition-all"
                               />
                             </div>

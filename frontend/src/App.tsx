@@ -6,6 +6,7 @@ import { AuthLayout } from '@/components/layout/AuthLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AdminRoute } from '@/components/auth/AdminRoute'
 import { LoadingFallback } from '@/components/shared/LoadingFallback'
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
 import { Toaster } from '@/components/ui/sonner'
 
 // Code splitting — Lazy load each page on demand
@@ -13,6 +14,7 @@ const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
 const AdminServicesPage = lazy(() => import('@/pages/admin/AdminServicesPage').then(m => ({ default: m.AdminServicesPage })))
 const AdminNewsPage = lazy(() => import('@/pages/admin/AdminNewsPage').then(m => ({ default: m.AdminNewsPage })))
+const ChangePasswordPage = lazy(() => import('@/pages/ChangePasswordPage').then(m => ({ default: m.ChangePasswordPage })))
 
 /**
  * Thin Suspense wrapper for per-route granular loading.
@@ -21,16 +23,19 @@ const AdminNewsPage = lazy(() => import('@/pages/admin/AdminNewsPage').then(m =>
  */
 function RouteSuspense({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      {children}
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        {children}
+      </Suspense>
+    </ErrorBoundary>
   )
 }
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
         <Routes>
           {/* Auth routes */}
           <Route element={<AuthLayout />}>
@@ -57,6 +62,14 @@ function App() {
               element={
                 <RouteSuspense>
                   <DashboardPage />
+                </RouteSuspense>
+              }
+            />
+            <Route
+              path="/ubah-password"
+              element={
+                <RouteSuspense>
+                  <ChangePasswordPage />
                 </RouteSuspense>
               }
             />
@@ -91,6 +104,7 @@ function App() {
         <Toaster position="top-right" richColors />
       </AuthProvider>
     </BrowserRouter>
+  </ErrorBoundary>
   )
 }
 

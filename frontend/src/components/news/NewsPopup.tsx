@@ -9,7 +9,8 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ChevronLeft, ChevronRight, X, Newspaper, Calendar, ExternalLink } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, Calendar, ExternalLink } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import type { News } from '@/types'
 
 interface NewsPopupProps {
@@ -37,49 +38,71 @@ export function NewsPopup({ news }: NewsPopupProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {/*
-        Mobile: full-width, bottom-anchored sheet feel (max-h-[92dvh] + mx-2)
-        Desktop (sm+): centered modal max-w-lg
-      */}
-      <DialogContent className="
-        w-[calc(100vw-1rem)] max-w-lg
-        bg-white border-slate-200 text-slate-900 shadow-2xl
-        p-0 overflow-hidden
-        max-h-[92dvh] flex flex-col
-        rounded-2xl sm:rounded-2xl
-      ">
-        {/* Header */}
-        <DialogHeader className="px-4 pt-4 pb-2 sm:px-6 sm:pt-5 shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-50 border border-amber-200/80 flex items-center justify-center shrink-0">
-                <Newspaper className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-600" />
-              </div>
-              <div className="min-w-0">
-                <DialogTitle className="text-sm sm:text-base font-bold text-slate-900 leading-tight">
-                  Pengumuman &amp; Berita
-                </DialogTitle>
-                <DialogDescription className="text-[11px] sm:text-xs text-slate-500 leading-tight mt-0.5 hidden sm:block">
-                  Informasi resmi Pemerintah Provinsi Jawa Barat
-                </DialogDescription>
-              </div>
+      <DialogContent className="w-[calc(100vw-1rem)] max-w-lg bg-white border-slate-200 text-slate-900 shadow-2xl p-0 overflow-hidden max-h-[92dvh] flex flex-col rounded-2xl">
+        {/* Header Modal */}
+        <DialogHeader className="px-4 pt-4 pb-3 sm:px-6 sm:pt-5 shrink-0 border-b border-slate-100 bg-slate-50/50">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className="text-[10px] bg-primary-50 text-primary-700 border-primary-200 font-semibold"
+              >
+                Pengumuman Resmi
+              </Badge>
+              <span className="text-slate-400 text-xs">·</span>
+              <span className="text-[11px] text-slate-500 font-medium">
+                Diskominfo Pemprov Jabar
+              </span>
             </div>
+
             {hasMultiple && (
-              <Badge variant="outline" className="text-[10px] sm:text-xs border-slate-200 text-slate-600 bg-slate-50 font-semibold shrink-0 ml-2">
+              <Badge
+                variant="outline"
+                className="text-[10px] sm:text-xs border-slate-200 text-slate-600 bg-white font-semibold shrink-0 mr-5"
+              >
                 {currentIndex + 1} / {news.length}
               </Badge>
             )}
           </div>
+
+          <DialogTitle className="text-base sm:text-lg font-bold text-slate-900 leading-snug mt-1.5 text-left">
+            {currentNews.judul}
+          </DialogTitle>
+
+          {currentNews.tanggal_mulai && (
+            <DialogDescription className="text-xs text-slate-400 flex items-center gap-1.5 mt-1 text-left">
+              <Calendar className="h-3.5 w-3.5 shrink-0" />
+              <span>
+                {new Date(currentNews.tanggal_mulai).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </span>
+            </DialogDescription>
+          )}
         </DialogHeader>
 
-        {/* Scrollable Content */}
-        <div className="px-4 pb-2 sm:px-6 space-y-3 overflow-y-auto flex-1 min-h-0">
+        {/* Body Content */}
+        <div className="px-4 py-4 sm:px-6 space-y-3 overflow-y-auto flex-1 min-h-0">
           {currentNews.gambar_url && (
-            <div className="group/img relative w-full rounded-2xl overflow-hidden bg-slate-950/5 border border-slate-200/90 flex items-center justify-center p-2 shrink-0 max-h-[280px] sm:max-h-[360px]">
+            <div
+              className={cn(
+                'group/img relative w-full rounded-2xl overflow-hidden bg-slate-950/5 border border-slate-200 flex items-center justify-center p-2 shrink-0 transition-all',
+                currentNews.isi_teks?.trim()
+                  ? 'max-h-[280px] sm:max-h-[340px]'
+                  : 'max-h-[68vh] sm:max-h-[540px]'
+              )}
+            >
               <img
                 src={currentNews.gambar_url}
                 alt={currentNews.judul}
-                className="max-h-[260px] sm:max-h-[340px] w-auto max-w-full object-contain rounded-xl drop-shadow-xs transition-transform duration-300"
+                className={cn(
+                  'w-auto max-w-full object-contain rounded-xl drop-shadow-xs transition-transform duration-300',
+                  currentNews.isi_teks?.trim()
+                    ? 'max-h-[260px] sm:max-h-[320px]'
+                    : 'max-h-[64vh] sm:max-h-[520px]'
+                )}
               />
               <a
                 href={currentNews.gambar_url}
@@ -94,31 +117,17 @@ export function NewsPopup({ news }: NewsPopupProps) {
             </div>
           )}
 
-          <div>
-            <h3 className="text-slate-900 font-bold text-base sm:text-lg mb-2 leading-snug">
-              {currentNews.judul}
-            </h3>
-            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed whitespace-pre-line bg-slate-50/70 p-3 sm:p-4 rounded-xl border border-slate-100">
-              {currentNews.isi_teks}
-            </p>
-
-            {currentNews.tanggal_mulai && (
-              <div className="flex items-center gap-1.5 text-slate-400 text-xs mt-3">
-                <Calendar className="h-3.5 w-3.5 shrink-0" />
-                <span>
-                  {new Date(currentNews.tanggal_mulai).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </span>
-              </div>
-            )}
-          </div>
+          {currentNews.isi_teks?.trim() && (
+            <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-100">
+              <p className="text-slate-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
+                {currentNews.isi_teks}
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Footer / Navigation */}
-        <DialogFooter className="px-4 py-3 sm:px-6 sm:py-4 border-t border-slate-100 bg-slate-50/60 shrink-0">
+        {/* Footer Modal / Navigation */}
+        <DialogFooter className="px-4 py-3 sm:px-6 sm:py-3.5 border-t border-slate-100 bg-slate-50/70 shrink-0">
           {hasMultiple ? (
             <div className="flex items-center justify-between w-full gap-2">
               <Button
@@ -126,12 +135,31 @@ export function NewsPopup({ news }: NewsPopupProps) {
                 size="sm"
                 onClick={() => setCurrentIndex(i => Math.max(0, i - 1))}
                 disabled={currentIndex === 0}
-                className="border-slate-200 text-slate-700 hover:bg-slate-100 text-xs h-9 px-3"
+                className="border-slate-200 text-slate-700 hover:bg-slate-100 text-xs h-9 px-3 disabled:opacity-40"
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 <span className="hidden xs:inline">Sebelumnya</span>
                 <span className="xs:hidden">Prev</span>
               </Button>
+
+              {/* Navigation Indicator Dots */}
+              <div className="flex items-center gap-1.5">
+                {news.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setCurrentIndex(idx)}
+                    className={cn(
+                      'h-1.5 rounded-full transition-all duration-300 cursor-pointer',
+                      idx === currentIndex
+                        ? 'w-5 bg-primary-600'
+                        : 'w-1.5 bg-slate-200 hover:bg-slate-300'
+                    )}
+                    title={`Pengumuman ${idx + 1}`}
+                  />
+                ))}
+              </div>
+
               <Button
                 size="sm"
                 onClick={() => {
@@ -141,7 +169,7 @@ export function NewsPopup({ news }: NewsPopupProps) {
                     setIsOpen(false)
                   }
                 }}
-                className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white text-xs h-9 px-3 font-medium shadow-xs"
+                className="bg-primary-600 hover:bg-primary-700 text-white text-xs h-9 px-4 font-medium shadow-xs"
               >
                 {currentIndex < news.length - 1 ? (
                   <>
@@ -160,10 +188,9 @@ export function NewsPopup({ news }: NewsPopupProps) {
           ) : (
             <div className="w-full flex justify-end">
               <Button
-                variant="outline"
                 size="sm"
                 onClick={() => setIsOpen(false)}
-                className="border-slate-200 text-slate-700 hover:bg-slate-100 text-xs h-9"
+                className="bg-primary-600 hover:bg-primary-700 text-white text-xs h-9 px-4 font-medium shadow-xs"
               >
                 Tutup
               </Button>

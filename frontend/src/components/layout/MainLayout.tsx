@@ -1,17 +1,17 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { Header } from './Header'
 import { Footer } from './Footer'
-import { GridBackgroundLayer } from '@/components/shared/GridBackground'
+import { cn } from '@/lib/utils'
 
 export function MainLayout() {
+  const location = useLocation()
+  const isDashboard = location.pathname === '/'
+
   return (
     <div className="min-h-screen relative flex flex-col bg-slate-50">
-      {/* Fixed Grid Background Layer across all portal pages */}
-      <GridBackgroundLayer fixed showTechAccents={false} />
-
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header />
-        <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
+        <main className={cn('flex-1', !isDashboard && 'container mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-8')}>
           <Outlet />
         </main>
         <Footer />
@@ -19,4 +19,3 @@ export function MainLayout() {
     </div>
   )
 }
-
