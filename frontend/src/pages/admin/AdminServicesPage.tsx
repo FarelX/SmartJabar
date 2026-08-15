@@ -64,6 +64,7 @@ import {
 import { toast } from 'sonner'
 import { FadeInView, StaggerContainer, StaggerItem } from '@/components/motion'
 import { ImageUpload } from '@/components/shared/ImageUpload'
+import { isValidUrl, sanitizeString } from '@/lib/validation'
 import { mockServices } from '@/lib/mock/services'
 import { getStoredCategories, saveStoredCategories } from '@/lib/mock/categories'
 import type { Service, ServiceCategory, ServiceFormData } from '@/types'
@@ -210,9 +211,32 @@ export function AdminServicesPage() {
   }
 
   const handleSaveService = () => {
-    if (!serviceForm.nama.trim() || !serviceForm.url_tujuan.trim()) {
+    const cleanNama = sanitizeString(serviceForm.nama)
+    const cleanDeskripsi = sanitizeString(serviceForm.deskripsi)
+    const cleanUrl = serviceForm.url_tujuan.trim()
+    const cleanIconUrl = serviceForm.icon_url ? serviceForm.icon_url.trim() : ''
+
+    if (!cleanNama || !cleanUrl) {
       toast.error('Nama layanan dan URL tujuan wajib diisi.')
       return
+    }
+
+    if (!isValidUrl(cleanUrl)) {
+      toast.error('Format URL tujuan tidak valid. Gunakan tautan yang diawali http:// atau https://')
+      return
+    }
+
+    if (cleanIconUrl && !isValidUrl(cleanIconUrl, true)) {
+      toast.error('Format URL/path ikon tidak valid.')
+      return
+    }
+
+    const payload: ServiceFormData = {
+      ...serviceForm,
+      nama: cleanNama,
+      deskripsi: cleanDeskripsi,
+      url_tujuan: cleanUrl,
+      icon_url: cleanIconUrl || null,
     }
 
     if (editingService) {
@@ -221,23 +245,23 @@ export function AdminServicesPage() {
           s.id === editingService.id
             ? {
                 ...s,
-                ...serviceForm,
-                category: categories.find(c => c.id === serviceForm.category_id),
+                ...payload,
+                category: categories.find(c => c.id === payload.category_id),
                 updated_at: new Date().toISOString(),
               }
             : s
         )
       )
-      toast.success(`Layanan "${serviceForm.nama}" berhasil diperbarui!`)
+      toast.success(`Layanan "${cleanNama}" berhasil diperbarui!`)
     } else {
       const newService: Service = {
         id: Math.max(...services.map(s => s.id), 0) + 1,
-        ...serviceForm,
-        icon_url: serviceForm.icon_url || null,
+        ...payload,
+        icon_url: cleanIconUrl || null,
         created_by: 1,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        category: categories.find(c => c.id === serviceForm.category_id),
+        category: categories.find(c => c.id === payload.category_id),
         usage_count: 0,
       }
       setServices(prev => [...prev, newService])
@@ -269,14 +293,15 @@ export function AdminServicesPage() {
   }
 
   const handleSaveCategory = () => {
-    if (!formCategoryNama.trim()) {
+    const cleanCategoryNama = sanitizeString(formCategoryNama)
+    if (!cleanCategoryNama) {
       toast.error('Nama kategori tidak boleh kosong.')
       return
     }
 
     if (editingCategory) {
       const updated = categories.map(c =>
-        c.id === editingCategory.id ? { ...c, nama: formCategoryNama.trim() } : c
+        c.id === editingCategory.id ? { ...c, nama: cleanCategoryNama } : c
       )
       setCategories(updated)
       saveStoredCategories(updated)
@@ -284,15 +309,15 @@ export function AdminServicesPage() {
       setServices(prev =>
         prev.map(s =>
           s.category_id === editingCategory.id
-            ? { ...s, category: { id: s.category_id, nama: formCategoryNama.trim() } }
+            ? { ...s, category: { id: s.category_id, nama: cleanCategoryNama } }
             : s
         )
       )
-      toast.success(`Kategori "${formCategoryNama.trim()}" berhasil diperbarui!`)
+      toast.success(`Kategori "${cleanCategoryNama}" berhasil diperbarui!`)
     } else {
       const newCat: ServiceCategory = {
         id: Math.max(...categories.map(c => c.id), 0) + 1,
-        nama: formCategoryNama.trim(),
+        nama: cleanCategoryNama,
       }
       const updated = [...categories, newCat]
       setCategories(updated)

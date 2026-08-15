@@ -60,6 +60,7 @@ import dayjs from 'dayjs'
 import { toast } from 'sonner'
 import { FadeInView } from '@/components/motion'
 import { ImageUpload } from '@/components/shared/ImageUpload'
+import { isValidUrl, sanitizeString } from '@/lib/validation'
 import { getStoredNews, saveStoredNews } from '@/lib/mock/news'
 import type { News, NewsFormData } from '@/types'
 
@@ -137,14 +138,30 @@ export function AdminNewsPage() {
   }
 
   const handleSave = () => {
-    if (!form.judul.trim()) {
+    const cleanJudul = sanitizeString(form.judul)
+    const cleanIsiTeks = sanitizeString(form.isi_teks)
+    const cleanGambarUrl = form.gambar_url ? form.gambar_url.trim() : ''
+
+    if (!cleanJudul) {
       toast.error('Judul pengumuman wajib diisi.')
       return
     }
 
-    if (!form.isi_teks.trim() && !form.gambar_url) {
+    if (!cleanIsiTeks && !cleanGambarUrl) {
       toast.error('Mohon isi teks pengumuman atau unggah gambar poster / banner.')
       return
+    }
+
+    if (cleanGambarUrl && !isValidUrl(cleanGambarUrl, true)) {
+      toast.error('Format URL gambar tidak valid.')
+      return
+    }
+
+    const payload: NewsFormData = {
+      ...form,
+      judul: cleanJudul,
+      isi_teks: cleanIsiTeks,
+      gambar_url: cleanGambarUrl || '',
     }
 
     if (editingNews) {
@@ -152,9 +169,9 @@ export function AdminNewsPage() {
         n.id === editingNews.id
           ? {
               ...n,
-              ...form,
-              isi_teks: form.isi_teks.trim(),
-              gambar_url: form.gambar_url || null,
+              ...payload,
+              isi_teks: cleanIsiTeks,
+              gambar_url: cleanGambarUrl || null,
               tanggal_mulai: form.tanggal_mulai || null,
               tanggal_selesai: form.tanggal_selesai || null,
               updated_at: new Date().toISOString(),
@@ -167,9 +184,9 @@ export function AdminNewsPage() {
     } else {
       const newNews: News = {
         id: Math.max(...newsList.map(n => n.id), 0) + 1,
-        ...form,
-        isi_teks: form.isi_teks.trim(),
-        gambar_url: form.gambar_url || null,
+        ...payload,
+        isi_teks: cleanIsiTeks,
+        gambar_url: cleanGambarUrl || null,
         tanggal_mulai: form.tanggal_mulai || null,
         tanggal_selesai: form.tanggal_selesai || null,
         created_by: 1,

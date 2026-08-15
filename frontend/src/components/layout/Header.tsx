@@ -14,6 +14,7 @@ import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { LogOut, Settings, Shield, ChevronDown, Menu, X, KeyRound } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { LazyMotion, domAnimation, m } from 'framer-motion'
+import { config } from '@/lib/config'
 
 const NAV_ITEMS = [
   { path: '/', label: 'Dashboard' },
@@ -197,14 +198,16 @@ export function Header() {
                     <KeyRound className="mr-2 h-4 w-4 text-primary-600" />
                     <span>Ubah Kata Sandi</span>
                   </DropdownMenuItem>
-                  {/* Mock role toggle */}
-                  <DropdownMenuItem
-                    className="text-slate-700 hover:text-slate-900 hover:bg-slate-50 cursor-pointer"
-                    onClick={toggleMockRole}
-                  >
-                    <Shield className="mr-2 h-4 w-4 text-primary-600" />
-                    <span>Switch Role (Mock: {user.role})</span>
-                  </DropdownMenuItem>
+                  {/* Mock role toggle (hidden in production) */}
+                  {config.enableMockAuth && (
+                    <DropdownMenuItem
+                      className="text-slate-700 hover:text-slate-900 hover:bg-slate-50 cursor-pointer"
+                      onClick={toggleMockRole}
+                    >
+                      <Shield className="mr-2 h-4 w-4 text-primary-600" />
+                      <span>Switch Role (Mock: {user.role})</span>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator className="bg-slate-100" />
                   <DropdownMenuItem
                     className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer font-medium"

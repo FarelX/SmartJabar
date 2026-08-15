@@ -6,6 +6,7 @@ import { AuthLayout } from '@/components/layout/AuthLayout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AdminRoute } from '@/components/auth/AdminRoute'
 import { LoadingFallback } from '@/components/shared/LoadingFallback'
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
 import { Toaster } from '@/components/ui/sonner'
 
 // Code splitting — Lazy load each page on demand
@@ -22,16 +23,19 @@ const ChangePasswordPage = lazy(() => import('@/pages/ChangePasswordPage').then(
  */
 function RouteSuspense({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      {children}
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        {children}
+      </Suspense>
+    </ErrorBoundary>
   )
 }
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
         <Routes>
           {/* Auth routes */}
           <Route element={<AuthLayout />}>
@@ -100,6 +104,7 @@ function App() {
         <Toaster position="top-right" richColors />
       </AuthProvider>
     </BrowserRouter>
+  </ErrorBoundary>
   )
 }
 
