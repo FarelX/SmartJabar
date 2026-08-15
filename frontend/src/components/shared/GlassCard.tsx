@@ -1,19 +1,26 @@
 import { cn } from '@/lib/utils'
-import type { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 
-interface GlassCardProps {
+interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode
   className?: string
   hoverable?: boolean
   strong?: boolean
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void
 }
 
 /**
  * GlassCard — Base glassmorphism card component.
  * Semi-translucent background, backdrop blur, glowing border.
  */
-export function GlassCard({ children, className, hoverable = false, strong = false, onClick }: GlassCardProps) {
+export function GlassCard({
+  children,
+  className,
+  hoverable = false,
+  strong = false,
+  onClick,
+  ...props
+}: GlassCardProps) {
   return (
     <div
       className={cn(
@@ -23,6 +30,7 @@ export function GlassCard({ children, className, hoverable = false, strong = fal
         className
       )}
       onClick={onClick}
+      {...props}
     >
       {children}
     </div>

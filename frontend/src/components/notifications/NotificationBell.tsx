@@ -28,7 +28,12 @@ import {
 import { cn } from '@/lib/utils'
 import type { News } from '@/types'
 
-export function NotificationBell() {
+interface NotificationBellProps {
+  variant?: 'glass' | 'light'
+  className?: string
+}
+
+export function NotificationBell({ variant = 'light', className }: NotificationBellProps) {
   const { notifications, unreadCount, isRead, markAsRead, markAllAsRead } = useNotifications()
   const [selectedNews, setSelectedNews] = useState<News | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -45,9 +50,15 @@ export function NotificationBell() {
         <DropdownMenuTrigger asChild>
           <button
             aria-label="Kotak Masuk Notifikasi & Pengumuman"
-            className="relative flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-white border border-slate-200/90 shadow-2xs hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer text-slate-700 shrink-0"
+            className={cn(
+              'relative flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full shadow-2xs transition-all cursor-pointer shrink-0',
+              variant === 'glass'
+                ? 'bg-white/10 hover:bg-white/20 border border-white/20 text-white backdrop-blur-md'
+                : 'bg-white border border-slate-200/90 hover:bg-slate-50 hover:border-slate-300 text-slate-700',
+              className
+            )}
           >
-            <Bell className="h-4 w-4 sm:h-[18px] sm:w-[18px] text-slate-600" />
+            <Bell className={cn('h-4 w-4 sm:h-[18px] sm:w-[18px]', variant === 'glass' ? 'text-white' : 'text-slate-600')} />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-xs animate-pulse">
                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -143,9 +154,15 @@ export function NotificationBell() {
                         {item.judul}
                       </h4>
 
-                      <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
-                        {item.isi_teks}
-                      </p>
+                      {item.isi_teks ? (
+                        <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
+                          {item.isi_teks}
+                        </p>
+                      ) : (
+                        <p className="text-[11px] text-slate-400 italic">
+                          Lihat gambar poster pengumuman
+                        </p>
+                      )}
                     </div>
 
                     {/* Status dot / arrow */}
@@ -185,7 +202,7 @@ export function NotificationBell() {
           {selectedNews && (
             <>
               {/* Header Modal */}
-              <DialogHeader className="px-4 pt-4 pb-2 sm:px-6 sm:pt-5 shrink-0 border-b border-slate-100 bg-slate-50/50">
+              <DialogHeader className="px-4 pt-4 pb-3 sm:px-6 sm:pt-5 shrink-0 border-b border-slate-100 bg-slate-50/50">
                 <div className="flex items-center gap-2">
                   <Badge
                     variant="outline"
@@ -218,11 +235,23 @@ export function NotificationBell() {
               {/* Body Content */}
               <div className="px-4 py-4 sm:px-6 space-y-3 overflow-y-auto flex-1 min-h-0">
                 {selectedNews.gambar_url && (
-                  <div className="group/img relative w-full rounded-2xl overflow-hidden bg-slate-950/5 border border-slate-200 flex items-center justify-center p-2 shrink-0 max-h-[280px] sm:max-h-[360px]">
+                  <div
+                    className={cn(
+                      'group/img relative w-full rounded-2xl overflow-hidden bg-slate-950/5 border border-slate-200 flex items-center justify-center p-2 shrink-0 transition-all',
+                      selectedNews.isi_teks?.trim()
+                        ? 'max-h-[280px] sm:max-h-[340px]'
+                        : 'max-h-[68vh] sm:max-h-[540px]'
+                    )}
+                  >
                     <img
                       src={selectedNews.gambar_url}
                       alt={selectedNews.judul}
-                      className="max-h-[260px] sm:max-h-[340px] w-auto max-w-full object-contain rounded-xl drop-shadow-xs transition-transform duration-300"
+                      className={cn(
+                        'w-auto max-w-full object-contain rounded-xl drop-shadow-xs transition-transform duration-300',
+                        selectedNews.isi_teks?.trim()
+                          ? 'max-h-[260px] sm:max-h-[320px]'
+                          : 'max-h-[64vh] sm:max-h-[520px]'
+                      )}
                     />
                     <a
                       href={selectedNews.gambar_url}
@@ -237,11 +266,13 @@ export function NotificationBell() {
                   </div>
                 )}
 
-                <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-100">
-                  <p className="text-slate-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
-                    {selectedNews.isi_teks}
-                  </p>
-                </div>
+                {selectedNews.isi_teks?.trim() && (
+                  <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-100">
+                    <p className="text-slate-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
+                      {selectedNews.isi_teks}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Footer Modal */}
@@ -249,7 +280,7 @@ export function NotificationBell() {
                 <Button
                   size="sm"
                   onClick={() => setSelectedNews(null)}
-                  className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-500 hover:to-teal-500 text-white text-xs h-9 px-4 font-medium shadow-xs"
+                  className="bg-primary-600 hover:bg-primary-700 text-white text-xs h-9 px-4 font-medium shadow-xs"
                 >
                   Tutup
                 </Button>

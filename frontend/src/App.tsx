@@ -13,6 +13,7 @@ const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
 const AdminServicesPage = lazy(() => import('@/pages/admin/AdminServicesPage').then(m => ({ default: m.AdminServicesPage })))
 const AdminNewsPage = lazy(() => import('@/pages/admin/AdminNewsPage').then(m => ({ default: m.AdminNewsPage })))
+const ChangePasswordPage = lazy(() => import('@/pages/ChangePasswordPage').then(m => ({ default: m.ChangePasswordPage })))
 
 /**
  * Thin Suspense wrapper for per-route granular loading.
@@ -57,6 +58,14 @@ function App() {
               element={
                 <RouteSuspense>
                   <DashboardPage />
+                </RouteSuspense>
+              }
+            />
+            <Route
+              path="/ubah-password"
+              element={
+                <RouteSuspense>
+                  <ChangePasswordPage />
                 </RouteSuspense>
               }
             />

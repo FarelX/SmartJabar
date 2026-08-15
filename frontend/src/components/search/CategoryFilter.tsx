@@ -30,7 +30,7 @@ export function CategoryFilter({ categories, selected, onChange }: CategoryFilte
         {isAllSelected && (
           <motion.div
             layoutId="active-category-pill"
-            className="absolute inset-0 bg-gradient-to-r from-primary-600 to-teal-600 rounded-xl shadow-md shadow-primary-500/25 -z-0"
+            className="absolute inset-0 bg-primary-600 rounded-xl shadow-sm -z-0"
             transition={{ type: 'spring', stiffness: 500, damping: 35 }}
           />
         )}
@@ -52,7 +52,7 @@ export function CategoryFilter({ categories, selected, onChange }: CategoryFilte
             {isCatSelected && (
               <motion.div
                 layoutId="active-category-pill"
-                className="absolute inset-0 bg-gradient-to-r from-primary-600 to-teal-600 rounded-xl shadow-md shadow-primary-500/25 -z-0"
+                className="absolute inset-0 bg-primary-600 rounded-xl shadow-sm -z-0"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}

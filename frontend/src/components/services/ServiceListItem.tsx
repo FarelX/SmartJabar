@@ -26,10 +26,20 @@ export function ServiceListItem({
 
   return (
     <div
+      tabIndex={0}
+      role="button"
+      aria-label={`Buka layanan ${service.nama}: ${service.deskripsi}`}
       onClick={() => onServiceClick(service)}
+      onKeyDown={(e) => {
+        if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
+          e.preventDefault()
+          onServiceClick(service)
+        }
+      }}
       className={cn(
         'group relative flex items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl transition-all duration-200 cursor-pointer',
-        'glass bg-white/70 hover:bg-white/90 border border-white/80 hover:border-primary-200/80 shadow-2xs hover:shadow-xs'
+        'bg-white hover:bg-white border border-slate-200/80 hover:border-slate-300 shadow-xs hover:shadow-sm',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50'
       )}
     >
       {/* Left side: Star, Logo, Name & Description */}
@@ -40,18 +50,26 @@ export function ServiceListItem({
             variant="outline"
             size="icon"
             title={isFavorite ? 'Lepas dari Favorit' : 'Sematkan ke Favorit'}
+            aria-label={isFavorite ? `Lepas ${service.nama} dari favorit` : `Sematkan ${service.nama} ke favorit`}
+            aria-pressed={isFavorite}
             className={cn(
-              'group/fav h-7 w-7 sm:h-8 sm:w-8 rounded-lg shadow-2xs backdrop-blur-md transition-all shrink-0 bg-white/90 hover:bg-white border-white/80 hover:border-slate-200',
+              'group/fav h-7 w-7 sm:h-8 sm:w-8 rounded-lg shadow-2xs backdrop-blur-md transition-all shrink-0 bg-white/90 hover:bg-white border-white/80 hover:border-slate-200 focus-visible:ring-2 focus-visible:ring-primary-500',
               isFavorite
                 ? 'opacity-100 scale-100'
-                : 'opacity-90 sm:opacity-0 sm:group-hover:opacity-100'
+                : 'opacity-90 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 sm:focus-visible:opacity-100'
             )}
             onClick={(e) => {
               e.stopPropagation()
               onToggleFavorite(service)
             }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.stopPropagation()
+              }
+            }}
           >
             <Star
+              aria-hidden="true"
               className={cn(
                 'h-3.5 w-3.5 sm:h-4 sm:w-4 transition-all duration-200',
                 isFavorite
@@ -67,11 +85,11 @@ export function ServiceListItem({
           {service.icon_url ? (
             <img
               src={service.icon_url}
-              alt={service.nama}
+              alt={`Logo ${service.nama}`}
               className="max-h-full max-w-full object-contain drop-shadow-xs"
             />
           ) : (
-            <Layers className="h-5 w-5 text-slate-400" />
+            <Layers aria-hidden="true" className="h-5 w-5 text-slate-400" />
           )}
         </div>
 
@@ -111,36 +129,48 @@ export function ServiceListItem({
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         {/* Admin controls */}
         {isAdmin && (
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-within:opacity-100 transition-opacity">
             <Button
               variant="outline"
               size="icon"
               title="Edit Layanan"
-              className="h-7 w-7 bg-white/90 hover:bg-white text-slate-700 hover:text-primary-600 border-slate-200 shadow-2xs"
+              aria-label={`Edit layanan ${service.nama}`}
+              className="h-7 w-7 bg-white/90 hover:bg-white text-slate-700 hover:text-primary-600 border-slate-200 shadow-2xs focus-visible:ring-2 focus-visible:ring-primary-500"
               onClick={(e) => {
                 e.stopPropagation()
                 onEdit?.(service)
               }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.stopPropagation()
+                }
+              }}
             >
-              <Pencil className="h-3 w-3" />
+              <Pencil aria-hidden="true" className="h-3 w-3" />
             </Button>
             <Button
               variant="outline"
               size="icon"
               title="Hapus Layanan"
-              className="h-7 w-7 bg-white/90 hover:bg-red-50 text-slate-700 hover:text-red-600 hover:border-red-200 border-slate-200 shadow-2xs"
+              aria-label={`Hapus layanan ${service.nama}`}
+              className="h-7 w-7 bg-white/90 hover:bg-red-50 text-slate-700 hover:text-red-600 hover:border-red-200 border-slate-200 shadow-2xs focus-visible:ring-2 focus-visible:ring-red-500"
               onClick={(e) => {
                 e.stopPropagation()
                 onDelete?.(service)
               }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.stopPropagation()
+                }
+              }}
             >
-              <Trash2 className="h-3 w-3" />
+              <Trash2 aria-hidden="true" className="h-3 w-3" />
             </Button>
           </div>
         )}
 
         {/* Buka Layanan action */}
-        <div className="flex items-center gap-1 text-primary-600 text-xs font-semibold px-2 py-1 rounded-lg group-hover:bg-primary-50/80 transition-colors">
+        <div aria-hidden="true" className="flex items-center gap-1 text-primary-600 text-xs font-semibold px-2 py-1 rounded-lg group-hover:bg-primary-50/80 transition-colors">
           <span className="hidden sm:inline">Buka</span>
           <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
         </div>

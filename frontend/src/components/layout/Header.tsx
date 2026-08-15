@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
-import { LogOut, Settings, Shield, ChevronDown, Menu, X } from 'lucide-react'
+import { LogOut, Settings, Shield, ChevronDown, Menu, X, KeyRound } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { LazyMotion, domAnimation, m } from 'framer-motion'
 
@@ -69,7 +69,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16 gap-3">
 
@@ -99,7 +99,7 @@ export function Header() {
                 >
                   {/* Sliding active pill indicator */}
                   <m.div
-                    className="absolute top-1 bottom-1 bg-gradient-to-r from-primary-600 to-teal-600 rounded-lg shadow-sm shadow-primary-500/25 pointer-events-none"
+                    className="absolute top-1 bottom-1 bg-primary-600 rounded-lg shadow-sm shadow-primary-500/20 pointer-events-none"
                     animate={{
                       left: pillStyle.left,
                       width: pillStyle.width,
@@ -136,7 +136,7 @@ export function Header() {
               {isAdmin && (
                 <button
                   onClick={() => setMobileMenuOpen(v => !v)}
-                  className="md:hidden flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full sm:rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs"
+                  className="md:hidden flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full sm:rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
                   aria-label="Toggle navigation menu"
                 >
                   {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -189,6 +189,14 @@ export function Header() {
                       <DropdownMenuSeparator className="bg-slate-100 md:hidden" />
                     </>
                   )}
+                  <DropdownMenuSeparator className="bg-slate-100" />
+                  <DropdownMenuItem
+                    className="text-slate-700 hover:text-slate-900 hover:bg-slate-50 cursor-pointer"
+                    onClick={() => navigate('/ubah-password')}
+                  >
+                    <KeyRound className="mr-2 h-4 w-4 text-primary-600" />
+                    <span>Ubah Kata Sandi</span>
+                  </DropdownMenuItem>
                   {/* Mock role toggle */}
                   <DropdownMenuItem
                     className="text-slate-700 hover:text-slate-900 hover:bg-slate-50 cursor-pointer"
@@ -226,7 +234,7 @@ export function Header() {
                     to={item.path}
                     className={`px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                       active
-                        ? 'bg-gradient-to-r from-primary-600 to-teal-600 text-white font-semibold shadow-sm'
+                        ? 'bg-primary-600 text-white font-semibold shadow-sm'
                         : 'text-slate-700 hover:bg-slate-100'
                     }`}
                   >
