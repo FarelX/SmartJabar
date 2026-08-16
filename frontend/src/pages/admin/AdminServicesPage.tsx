@@ -64,7 +64,7 @@ import {
 import { toast } from 'sonner'
 import { FadeInView, StaggerContainer, StaggerItem } from '@/components/motion'
 import { ImageUpload } from '@/components/shared/ImageUpload'
-import { isValidUrl, sanitizeString } from '@/lib/validation'
+import { isValidUrl, isValidImageUrl, sanitizeString } from '@/lib/validation'
 import { mockServices } from '@/lib/mock/services'
 import { getStoredCategories, saveStoredCategories } from '@/lib/mock/categories'
 import type { Service, ServiceCategory, ServiceFormData } from '@/types'
@@ -226,7 +226,7 @@ export function AdminServicesPage() {
       return
     }
 
-    if (cleanIconUrl && !isValidUrl(cleanIconUrl, true)) {
+    if (cleanIconUrl && !isValidImageUrl(cleanIconUrl)) {
       toast.error('Format URL/path ikon tidak valid.')
       return
     }

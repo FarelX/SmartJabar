@@ -8,6 +8,7 @@ import { ServiceListItem } from '@/components/services/ServiceListItem'
 import { NewsPopup } from '@/components/news/NewsPopup'
 import { GreetingHeader } from '@/components/dashboard/GreetingHeader'
 import { FadeInView } from '@/components/motion'
+import { DottedGridBackground } from '@/components/shared/DottedGridBackground'
 import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -349,84 +350,87 @@ export function DashboardPage() {
       </section>
 
       {/* =========================================================================
-          CONTENT SECTION — 19 Solid White Cards Grid & List (Directly touching)
+          CONTENT SECTION — 19 Layanan Grid & List with Masked Dotted Grid Background
           ========================================================================= */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-10 sm:pb-14 space-y-8">
-        <section>
-          {filteredServices.length > 0 ? (
-            viewMode === 'grid' ? (
-              <div
-                key={`grid-${selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}`}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-              >
-                {filteredServices.map((service, index) => (
-                  <FadeInView
-                    key={service.id}
-                    direction="up"
-                    delay={(index % 4) * 0.05}
-                    amount={0.12}
-                    margin="0px 0px -40px 0px"
-                    className="h-full"
-                  >
-                    <ServiceCard
-                      service={service}
-                      onServiceClick={handleServiceClick}
-                      onEdit={handleOpenEdit}
-                      onDelete={handleOpenDelete}
-                      isFavorite={isFavorite(service.id)}
-                      onToggleFavorite={toggleFavorite}
-                    />
-                  </FadeInView>
-                ))}
-              </div>
+      <div className="relative overflow-hidden">
+        <DottedGridBackground topOffset={45} />
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-10 sm:pb-14 space-y-8">
+          <section>
+            {filteredServices.length > 0 ? (
+              viewMode === 'grid' ? (
+                <div
+                  key={`grid-${selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}`}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                >
+                  {filteredServices.map((service, index) => (
+                    <FadeInView
+                      key={service.id}
+                      direction="up"
+                      delay={(index % 4) * 0.05}
+                      amount={0.12}
+                      margin="0px 0px -40px 0px"
+                      className="h-full"
+                    >
+                      <ServiceCard
+                        service={service}
+                        onServiceClick={handleServiceClick}
+                        onEdit={handleOpenEdit}
+                        onDelete={handleOpenDelete}
+                        isFavorite={isFavorite(service.id)}
+                        onToggleFavorite={toggleFavorite}
+                      />
+                    </FadeInView>
+                  ))}
+                </div>
+              ) : (
+                <div
+                  key={`list-${selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}`}
+                  className="space-y-2.5"
+                >
+                  {filteredServices.map((service, index) => (
+                    <FadeInView
+                      key={service.id}
+                      direction="up"
+                      delay={(index % 8) * 0.04}
+                      amount={0.1}
+                      margin="0px 0px -40px 0px"
+                    >
+                      <ServiceListItem
+                        service={service}
+                        onServiceClick={handleServiceClick}
+                        onEdit={handleOpenEdit}
+                        onDelete={handleOpenDelete}
+                        isFavorite={isFavorite(service.id)}
+                        onToggleFavorite={toggleFavorite}
+                      />
+                    </FadeInView>
+                  ))}
+                </div>
+              )
             ) : (
-              <div
-                key={`list-${selectedCategory !== null ? `cat-${selectedCategory}` : `search-${searchQuery}`}`}
-                className="space-y-2.5"
-              >
-                {filteredServices.map((service, index) => (
-                  <FadeInView
-                    key={service.id}
-                    direction="up"
-                    delay={(index % 8) * 0.04}
-                    amount={0.1}
-                    margin="0px 0px -40px 0px"
-                  >
-                    <ServiceListItem
-                      service={service}
-                      onServiceClick={handleServiceClick}
-                      onEdit={handleOpenEdit}
-                      onDelete={handleOpenDelete}
-                      isFavorite={isFavorite(service.id)}
-                      onToggleFavorite={toggleFavorite}
-                    />
-                  </FadeInView>
-                ))}
-              </div>
-            )
-          ) : (
-            <FadeInView>
-              <div className="p-12 text-center bg-white/70 rounded-2xl border border-slate-200/80 shadow-2xs">
-                <Layers className="h-10 w-10 text-slate-300 mx-auto mb-2 stroke-[1.5]" />
-                <p className="text-slate-600 font-semibold text-sm">Tidak ada layanan yang ditemukan</p>
-                <p className="text-slate-400 text-xs mt-1 max-w-sm mx-auto">
-                  Coba gunakan kata kunci pencarian yang lain atau ubah kategori filter.
-                </p>
-                {hasActiveFilters && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleResetFilters}
-                    className="mt-3 text-xs border-slate-200"
-                  >
-                    <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
-                    Reset Filter
-                  </Button>
-                )}
-              </div>
-            </FadeInView>
-          )}
-        </section>
+              <FadeInView>
+                <div className="p-12 text-center bg-white/70 rounded-2xl border border-slate-200/80 shadow-2xs">
+                  <Layers className="h-10 w-10 text-slate-300 mx-auto mb-2 stroke-[1.5]" />
+                  <p className="text-slate-600 font-semibold text-sm">Tidak ada layanan yang ditemukan</p>
+                  <p className="text-slate-400 text-xs mt-1 max-w-sm mx-auto">
+                    Coba gunakan kata kunci pencarian yang lain atau ubah kategori filter.
+                  </p>
+                  {hasActiveFilters && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResetFilters}
+                      className="mt-3 text-xs border-slate-200"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+                      Reset Filter
+                    </Button>
+                  )}
+                </div>
+              </FadeInView>
+            )}
+          </section>
+        </div>
       </div>
 
       {/* Edit Service Modal (shadcn/ui Dialog) */}
