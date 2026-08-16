@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { sanitizeString, isValidNip, isValidUrl, isValidEmail, isWithinLength } from './validation'
+import { sanitizeString, isValidNip, isValidUrl, isValidImageUrl, isValidEmail, isWithinLength } from './validation'
 
 describe('Validation & Sanitization Helpers', () => {
   describe('sanitizeString', () => {
@@ -56,6 +56,39 @@ describe('Validation & Sanitization Helpers', () => {
       expect(isValidUrl('/logo-layanan/sidebar.webp', true)).toBe(true)
       expect(isValidUrl('/assets/icon.png', true)).toBe(true)
       expect(isValidUrl('/logo-layanan/sidebar.webp', false)).toBe(false)
+    })
+  })
+
+  describe('isValidImageUrl', () => {
+    it('should accept base64 image data URLs from FileReader upload', () => {
+      expect(isValidImageUrl('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==')).toBe(true)
+      expect(isValidImageUrl('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP...')).toBe(true)
+      expect(isValidImageUrl('data:image/webp;base64,UklGRk...')).toBe(true)
+      expect(isValidImageUrl('data:image/svg+xml;base64,PHN2Zy...')).toBe(true)
+    })
+
+    it('should accept blob URLs', () => {
+      expect(isValidImageUrl('blob:http://localhost:5173/a4f3-231a')).toBe(true)
+      expect(isValidImageUrl('blob:https://smart.jabarprov.go.id/1234-5678')).toBe(true)
+    })
+
+    it('should accept relative image paths', () => {
+      expect(isValidImageUrl('/logo-layanan/sidebar.webp')).toBe(true)
+      expect(isValidImageUrl('./assets/logo.png')).toBe(true)
+    })
+
+    it('should accept valid HTTP and HTTPS remote image URLs', () => {
+      expect(isValidImageUrl('https://cdn.jabarprov.go.id/banner.jpg')).toBe(true)
+      expect(isValidImageUrl('http://localhost:8000/storage/icon.png')).toBe(true)
+    })
+
+    it('should reject dangerous pseudo protocols or non-image data URIs', () => {
+      expect(isValidImageUrl('javascript:alert(1)')).toBe(false)
+      expect(isValidImageUrl('data:text/html,<script>alert(1)</script>')).toBe(false)
+      expect(isValidImageUrl('data:application/pdf;base64,...')).toBe(false)
+      expect(isValidImageUrl('not-a-valid-image')).toBe(false)
+      expect(isValidImageUrl('')).toBe(false)
+      expect(isValidImageUrl(null)).toBe(false)
     })
   })
 

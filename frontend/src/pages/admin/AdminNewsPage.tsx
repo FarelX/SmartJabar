@@ -60,7 +60,7 @@ import dayjs from 'dayjs'
 import { toast } from 'sonner'
 import { FadeInView } from '@/components/motion'
 import { ImageUpload } from '@/components/shared/ImageUpload'
-import { isValidUrl, sanitizeString } from '@/lib/validation'
+import { isValidImageUrl, sanitizeString } from '@/lib/validation'
 import { getStoredNews, saveStoredNews } from '@/lib/mock/news'
 import type { News, NewsFormData } from '@/types'
 
@@ -152,7 +152,7 @@ export function AdminNewsPage() {
       return
     }
 
-    if (cleanGambarUrl && !isValidUrl(cleanGambarUrl, true)) {
+    if (cleanGambarUrl && !isValidImageUrl(cleanGambarUrl)) {
       toast.error('Format URL gambar tidak valid.')
       return
     }

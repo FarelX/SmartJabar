@@ -39,17 +39,45 @@
 }
 
 @layer base {
+  :root {
+    --removed-body-scroll-bar-size: 0px !important;
+  }
+
   * {
     @apply border-border;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
   }
 
   html {
+    overflow-y: scroll !important;
     scrollbar-gutter: stable;
   }
 
-  /* Sleek modern scrollbar */
+  /* High-specificity overrides to prevent Radix UI (react-remove-scroll) 
+     from adding fake compensation padding/margin to body or fixed elements */
+  html body,
+  html body[data-scroll-locked],
+  html body[style],
+  html[style] body,
+  body[data-scroll-locked] {
+    --removed-body-scroll-bar-size: 0px !important;
+    padding-right: 0px !important;
+    margin-right: 0px !important;
+  }
+
+  html header,
+  html .fixed,
+  html [data-radix-scroll-lock-target],
+  header {
+    padding-right: 0px !important;
+    margin-right: 0px !important;
+  }
+
+  /* Sleek modern scrollbar styling */
   ::-webkit-scrollbar {
-    display: none;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
@@ -57,12 +85,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.4);
+    background: rgba(148, 163, 184, 0.45);
     border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(100, 116, 139, 0.6);
+    background: rgba(100, 116, 139, 0.7);
   }
 
   body {
@@ -137,26 +165,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
 
-/* ================================
-   Scrollbar Styling
-   ================================ */
-::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.6);
-}
 
 /* ================================
    Text Gradient Utility
